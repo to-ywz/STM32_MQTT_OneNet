@@ -51,34 +51,20 @@ typedef struct UartObject
 /**
  * 串口宏定义，不同的串口挂载的总线和IO不一样，移植时需要修改这几个宏
  */
+#define USING_RS485 0
 
 #if USING_RS485
 #define RS485_RX_EN() set_pin_low(RS485_RE_Port, RS485_RE_Pin)
 #define RS485_TX_EN() set_pin_hig(RS485_RE_Port, RS485_RE_Pin)
 #endif
 
-#define USART_RX_BUF_SIZE 128
-#define USART_TX_BUF_SIZE 128
-#define REC_LENGTH 1
-
-extern uint8_t UARTFlag;
-extern char dataString[10][10];
-extern uint8_t pRxBuffer[USART_RX_BUF_SIZE];
-extern uint8_t pTxBuffer[USART_TX_BUF_SIZE];
-extern uint8_t rxCount;
-extern uint8_t txCount;
-extern uint8_t UARTx_temp[REC_LENGTH];
-
 
 extern UartObject_t uart2;
 
 //---------------------------- 接口函数 ------------------------------------
 void uart_init(void);
-void rxDataHandler(void);
-void uart_sendByte(UART_HandleTypeDef *huart, uint8_t ch);
-void uart_sendString(UART_HandleTypeDef *huart, char *str);
-void USART_printf(UART_HandleTypeDef *USARTx, char *Data, ...);
-uint8_t Board_UARTGetCharBlocking(void);
+void UARTx_SendData(UART_HandleTypeDef *huart, uint8_t *buf, uint16_t length);
+void UARTx_printf(UART_HandleTypeDef *huart, char *Data, ...);
 
 #endif // !BSP_USART_FIFO_H_
 

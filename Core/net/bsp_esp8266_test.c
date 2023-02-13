@@ -85,7 +85,7 @@ void ESP8266_CheckRecvDataTest(void)
     // 解析数据后，执行的操作函数在这里调用
     if (!strcmp(strEsp8266_Fram_Record.Data_RX_BUF, "+++\r\n"))
     {
-      USART_printf(&huart2, "+++");
+      UARTx_printf(&huart2, "+++");
     }
 
     strEsp8266_Fram_Record.InfBit.FramLength = 0;           // 接收数据长度置零

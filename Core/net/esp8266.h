@@ -74,7 +74,7 @@ extern struct  STRUCT_USARTx_Fram                                  //串口数�
 extern struct STRUCT_USARTx_Fram strUSART_Fram_Record;
 
 /*********************************************** ESP8266 函数宏定义 *******************************************/
-#define     macESP8266_Usart( fmt, ... )           USART_printf (macESP8266_USARTx, fmt, ##__VA_ARGS__ ) 
+#define     macESP8266_Usart( fmt, ... )           UARTx_printf (macESP8266_USARTx, fmt, ##__VA_ARGS__ ) 
 #define     macPC_Usart( fmt, ... )                printf ( fmt, ##__VA_ARGS__ )    
 
 #define     macESP8266_CH_ENABLE()                 bsp_pin_write ( ESP8266_EN_PIN, GPIO_PIN_SET)

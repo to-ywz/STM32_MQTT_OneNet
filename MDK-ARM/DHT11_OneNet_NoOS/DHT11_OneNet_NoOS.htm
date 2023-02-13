@@ -3,11 +3,11 @@
 <title>Static Call Graph - [DHT11_OneNet_NoOS\DHT11_OneNet_NoOS.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image DHT11_OneNet_NoOS\DHT11_OneNet_NoOS.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6160001: Last Updated: Mon Feb 13 11:26:04 2023
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6160001: Last Updated: Mon Feb 13 16:24:34 2023
 <BR><P>
 <H3>Maximum Stack Usage =        456 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
-main &rArr; ESP8266_CheckRecvDataTest &rArr; ESP8266_Link_Server &rArr; ESP8266_Cmd &rArr; USART_printf &rArr; itoa
+main &rArr; ESP8266_CheckRecvDataTest &rArr; ESP8266_Link_Server &rArr; ESP8266_Cmd &rArr; UARTx_printf &rArr; itoa
 <P>
 <H3>
 Mutually Recursive functions
@@ -564,7 +564,7 @@ Global Symbols
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f407xx.o(RESET)
 </UL>
 <P><STRONG><a name="[8a]"></a>ESP8266_AT_Test</STRONG> (Thumb, 152 bytes, Stack size 16 bytes, esp8266.o(.text.ESP8266_AT_Test))
-<BR><BR>[Stack]<UL><LI>Max Depth = 160<LI>Call Chain = ESP8266_AT_Test &rArr; ESP8266_Cmd &rArr; USART_printf &rArr; itoa
+<BR><BR>[Stack]<UL><LI>Max Depth = 160<LI>Call Chain = ESP8266_AT_Test &rArr; ESP8266_Cmd &rArr; UARTx_printf &rArr; itoa
 </UL>
 <BR>[Calls]<UL><LI><a href="#[87]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;bsp_pin_write
 <LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Delay
@@ -576,9 +576,9 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[8e]"></a>ESP8266_CheckRecvDataTest</STRONG> (Thumb, 510 bytes, Stack size 32 bytes, bsp_esp8266_test.o(.text.ESP8266_CheckRecvDataTest))
-<BR><BR>[Stack]<UL><LI>Max Depth = 432<LI>Call Chain = ESP8266_CheckRecvDataTest &rArr; ESP8266_Link_Server &rArr; ESP8266_Cmd &rArr; USART_printf &rArr; itoa
+<BR><BR>[Stack]<UL><LI>Max Depth = 432<LI>Call Chain = ESP8266_CheckRecvDataTest &rArr; ESP8266_Link_Server &rArr; ESP8266_Cmd &rArr; UARTx_printf &rArr; itoa
 </UL>
-<BR>[Calls]<UL><LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART_printf
+<BR>[Calls]<UL><LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UARTx_printf
 <LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ESP8266_UnvarnishSend
 <LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ESP8266_Link_Server
 <LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ESP8266_JoinAP
@@ -594,9 +594,9 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[8c]"></a>ESP8266_Cmd</STRONG> (Thumb, 394 bytes, Stack size 48 bytes, esp8266.o(.text.ESP8266_Cmd))
-<BR><BR>[Stack]<UL><LI>Max Depth = 144<LI>Call Chain = ESP8266_Cmd &rArr; USART_printf &rArr; itoa
+<BR><BR>[Stack]<UL><LI>Max Depth = 144<LI>Call Chain = ESP8266_Cmd &rArr; UARTx_printf &rArr; itoa
 </UL>
-<BR>[Calls]<UL><LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART_printf
+<BR>[Calls]<UL><LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UARTx_printf
 <LI><a href="#[90]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ringbuffer_getchar
 <LI><a href="#[8f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ringbuffer_data_len
 <LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Delay
@@ -614,7 +614,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[99]"></a>ESP8266_Enable_MultipleId</STRONG> (Thumb, 60 bytes, Stack size 40 bytes, esp8266.o(.text.ESP8266_Enable_MultipleId))
-<BR><BR>[Stack]<UL><LI>Max Depth = 184<LI>Call Chain = ESP8266_Enable_MultipleId &rArr; ESP8266_Cmd &rArr; USART_printf &rArr; itoa
+<BR><BR>[Stack]<UL><LI>Max Depth = 184<LI>Call Chain = ESP8266_Enable_MultipleId &rArr; ESP8266_Cmd &rArr; UARTx_printf &rArr; itoa
 </UL>
 <BR>[Calls]<UL><LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sprintf
 <LI><a href="#[8c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ESP8266_Cmd
@@ -623,16 +623,16 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[93]"></a>ESP8266_ExitUnvarnishSend</STRONG> (Thumb, 40 bytes, Stack size 8 bytes, esp8266.o(.text.ESP8266_ExitUnvarnishSend))
-<BR><BR>[Stack]<UL><LI>Max Depth = 104<LI>Call Chain = ESP8266_ExitUnvarnishSend &rArr; USART_printf &rArr; itoa
+<BR><BR>[Stack]<UL><LI>Max Depth = 104<LI>Call Chain = ESP8266_ExitUnvarnishSend &rArr; UARTx_printf &rArr; itoa
 </UL>
-<BR>[Calls]<UL><LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART_printf
+<BR>[Calls]<UL><LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UARTx_printf
 <LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Delay
 </UL>
 <BR>[Called By]<UL><LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ESP8266_CheckRecvDataTest
 </UL>
 
 <P><STRONG><a name="[94]"></a>ESP8266_Get_LinkStatus</STRONG> (Thumb, 152 bytes, Stack size 16 bytes, esp8266.o(.text.ESP8266_Get_LinkStatus))
-<BR><BR>[Stack]<UL><LI>Max Depth = 160<LI>Call Chain = ESP8266_Get_LinkStatus &rArr; ESP8266_Cmd &rArr; USART_printf &rArr; itoa
+<BR><BR>[Stack]<UL><LI>Max Depth = 160<LI>Call Chain = ESP8266_Get_LinkStatus &rArr; ESP8266_Cmd &rArr; UARTx_printf &rArr; itoa
 </UL>
 <BR>[Calls]<UL><LI><a href="#[98]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strstr
 <LI><a href="#[8c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ESP8266_Cmd
@@ -649,7 +649,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[95]"></a>ESP8266_JoinAP</STRONG> (Thumb, 52 bytes, Stack size 144 bytes, esp8266.o(.text.ESP8266_JoinAP))
-<BR><BR>[Stack]<UL><LI>Max Depth = 288<LI>Call Chain = ESP8266_JoinAP &rArr; ESP8266_Cmd &rArr; USART_printf &rArr; itoa
+<BR><BR>[Stack]<UL><LI>Max Depth = 288<LI>Call Chain = ESP8266_JoinAP &rArr; ESP8266_Cmd &rArr; UARTx_printf &rArr; itoa
 </UL>
 <BR>[Calls]<UL><LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sprintf
 <LI><a href="#[8c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ESP8266_Cmd
@@ -659,7 +659,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[96]"></a>ESP8266_Link_Server</STRONG> (Thumb, 206 bytes, Stack size 256 bytes, esp8266.o(.text.ESP8266_Link_Server))
-<BR><BR>[Stack]<UL><LI>Max Depth = 400<LI>Call Chain = ESP8266_Link_Server &rArr; ESP8266_Cmd &rArr; USART_printf &rArr; itoa
+<BR><BR>[Stack]<UL><LI>Max Depth = 400<LI>Call Chain = ESP8266_Link_Server &rArr; ESP8266_Cmd &rArr; UARTx_printf &rArr; itoa
 </UL>
 <BR>[Calls]<UL><LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sprintf
 <LI><a href="#[74]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr
@@ -670,7 +670,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[9c]"></a>ESP8266_Net_Mode_Choose</STRONG> (Thumb, 166 bytes, Stack size 16 bytes, esp8266.o(.text.ESP8266_Net_Mode_Choose))
-<BR><BR>[Stack]<UL><LI>Max Depth = 160<LI>Call Chain = ESP8266_Net_Mode_Choose &rArr; ESP8266_Cmd &rArr; USART_printf &rArr; itoa
+<BR><BR>[Stack]<UL><LI>Max Depth = 160<LI>Call Chain = ESP8266_Net_Mode_Choose &rArr; ESP8266_Cmd &rArr; UARTx_printf &rArr; itoa
 </UL>
 <BR>[Calls]<UL><LI><a href="#[8c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ESP8266_Cmd
 </UL>
@@ -687,7 +687,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[9d]"></a>ESP8266_StaTcpClient_Unvarnish_ConfigTest</STRONG> (Thumb, 232 bytes, Stack size 8 bytes, bsp_esp8266_test.o(.text.ESP8266_StaTcpClient_Unvarnish_ConfigTest))
-<BR><BR>[Stack]<UL><LI>Max Depth = 408<LI>Call Chain = ESP8266_StaTcpClient_Unvarnish_ConfigTest &rArr; ESP8266_Link_Server &rArr; ESP8266_Cmd &rArr; USART_printf &rArr; itoa
+<BR><BR>[Stack]<UL><LI>Max Depth = 408<LI>Call Chain = ESP8266_StaTcpClient_Unvarnish_ConfigTest &rArr; ESP8266_Link_Server &rArr; ESP8266_Cmd &rArr; UARTx_printf &rArr; itoa
 </UL>
 <BR>[Calls]<UL><LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ESP8266_UnvarnishSend
 <LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ESP8266_Net_Mode_Choose
@@ -702,7 +702,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[97]"></a>ESP8266_UnvarnishSend</STRONG> (Thumb, 88 bytes, Stack size 16 bytes, esp8266.o(.text.ESP8266_UnvarnishSend))
-<BR><BR>[Stack]<UL><LI>Max Depth = 160<LI>Call Chain = ESP8266_UnvarnishSend &rArr; ESP8266_Cmd &rArr; USART_printf &rArr; itoa
+<BR><BR>[Stack]<UL><LI>Max Depth = 160<LI>Call Chain = ESP8266_UnvarnishSend &rArr; ESP8266_Cmd &rArr; UARTx_printf &rArr; itoa
 </UL>
 <BR>[Calls]<UL><LI><a href="#[8c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ESP8266_Cmd
 </UL>
@@ -954,14 +954,14 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[c2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_Start_Receive_IT
 </UL>
 <BR>[Called By]<UL><LI><a href="#[c3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_RxCpltCallback
-<LI><a href="#[cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_USART2_UART_Init
+<LI><a href="#[d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uart_init
 </UL>
 
 <P><STRONG><a name="[c3]"></a>HAL_UART_RxCpltCallback</STRONG> (Thumb, 70 bytes, Stack size 16 bytes, bsp_uart.o(.text.HAL_UART_RxCpltCallback))
 <BR><BR>[Stack]<UL><LI>Max Depth = 72<LI>Call Chain = HAL_UART_RxCpltCallback &rArr; ringbuffer_putchar &rArr; ringbuffer_data_len &rArr; ringbuffer_status
 </UL>
-<BR>[Calls]<UL><LI><a href="#[c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ringbuffer_putchar
-<LI><a href="#[c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Receive_IT
+<BR>[Calls]<UL><LI><a href="#[c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Receive_IT
+<LI><a href="#[c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ringbuffer_putchar
 </UL>
 <BR>[Called By]<UL><LI><a href="#[b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_Receive_IT
 </UL>
@@ -1017,11 +1017,10 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[cc]"></a>MX_USART2_UART_Init</STRONG> (Thumb, 86 bytes, Stack size 16 bytes, usart.o(.text.MX_USART2_UART_Init))
+<P><STRONG><a name="[cc]"></a>MX_USART2_UART_Init</STRONG> (Thumb, 64 bytes, Stack size 16 bytes, usart.o(.text.MX_USART2_UART_Init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 160<LI>Call Chain = MX_USART2_UART_Init &rArr; HAL_UART_Init &rArr; HAL_UART_MspInit &rArr; HAL_NVIC_SetPriority &rArr; NVIC_EncodePriority
 </UL>
-<BR>[Calls]<UL><LI><a href="#[c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Receive_IT
-<LI><a href="#[bd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Init
+<BR>[Calls]<UL><LI><a href="#[bd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Init
 <LI><a href="#[cb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Error_Handler
 </UL>
 <BR>[Called By]<UL><LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
@@ -1067,6 +1066,17 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Receive_IT
 </UL>
 
+<P><STRONG><a name="[92]"></a>UARTx_printf</STRONG> (Thumb, 380 bytes, Stack size 64 bytes, bsp_uart.o(.text.UARTx_printf))
+<BR><BR>[Stack]<UL><LI>Max Depth = 96<LI>Call Chain = UARTx_printf &rArr; itoa
+</UL>
+<BR>[Calls]<UL><LI><a href="#[d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;itoa
+<LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USARTx_TransmitData8
+</UL>
+<BR>[Called By]<UL><LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ESP8266_ExitUnvarnishSend
+<LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ESP8266_CheckRecvDataTest
+<LI><a href="#[8c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ESP8266_Cmd
+</UL>
+
 <P><STRONG><a name="[2f]"></a>USART1_IRQHandler</STRONG> (Thumb, 16 bytes, Stack size 8 bytes, stm32f4xx_it.o(.text.USART1_IRQHandler))
 <BR><BR>[Stack]<UL><LI>Max Depth = 192<LI>Call Chain = USART1_IRQHandler &rArr; HAL_UART_IRQHandler &rArr; UART_Receive_IT &rArr; HAL_UART_RxCpltCallback &rArr; ringbuffer_putchar &rArr; ringbuffer_data_len &rArr; ringbuffer_status
 </UL>
@@ -1081,17 +1091,6 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f407xx.o(RESET)
 </UL>
-<P><STRONG><a name="[92]"></a>USART_printf</STRONG> (Thumb, 380 bytes, Stack size 64 bytes, bsp_uart.o(.text.USART_printf))
-<BR><BR>[Stack]<UL><LI>Max Depth = 96<LI>Call Chain = USART_printf &rArr; itoa
-</UL>
-<BR>[Calls]<UL><LI><a href="#[d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;itoa
-<LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USARTx_TransmitData8
-</UL>
-<BR>[Called By]<UL><LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ESP8266_ExitUnvarnishSend
-<LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ESP8266_CheckRecvDataTest
-<LI><a href="#[8c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ESP8266_Cmd
-</UL>
-
 <P><STRONG><a name="[5]"></a>UsageFault_Handler</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, stm32f4xx_it.o(.text.UsageFault_Handler))
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f407xx.o(RESET)
 </UL>
@@ -1168,7 +1167,7 @@ Global Symbols
 <BR>[Address Reference Count : 1]<UL><LI> printfa.o(i.__0printf)
 </UL>
 <P><STRONG><a name="[5b]"></a>main</STRONG> (Thumb, 68 bytes, Stack size 24 bytes, main.o(.text.main))
-<BR><BR>[Stack]<UL><LI>Max Depth = 456<LI>Call Chain = main &rArr; ESP8266_CheckRecvDataTest &rArr; ESP8266_Link_Server &rArr; ESP8266_Cmd &rArr; USART_printf &rArr; itoa
+<BR><BR>[Stack]<UL><LI>Max Depth = 456<LI>Call Chain = main &rArr; ESP8266_CheckRecvDataTest &rArr; ESP8266_Link_Server &rArr; ESP8266_Cmd &rArr; UARTx_printf &rArr; itoa
 </UL>
 <BR>[Calls]<UL><LI><a href="#[d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;board_init
 <LI><a href="#[ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SystemClock_Config
@@ -1221,10 +1220,11 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[8f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ringbuffer_data_len
 </UL>
 
-<P><STRONG><a name="[d4]"></a>uart_init</STRONG> (Thumb, 60 bytes, Stack size 16 bytes, bsp_uart.o(.text.uart_init))
-<BR><BR>[Stack]<UL><LI>Max Depth = 28<LI>Call Chain = uart_init &rArr; ringbuffer_init
+<P><STRONG><a name="[d4]"></a>uart_init</STRONG> (Thumb, 74 bytes, Stack size 16 bytes, bsp_uart.o(.text.uart_init))
+<BR><BR>[Stack]<UL><LI>Max Depth = 52<LI>Call Chain = uart_init &rArr; HAL_UART_Receive_IT &rArr; UART_Start_Receive_IT
 </UL>
-<BR>[Calls]<UL><LI><a href="#[de]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ringbuffer_init
+<BR>[Calls]<UL><LI><a href="#[c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Receive_IT
+<LI><a href="#[de]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ringbuffer_init
 </UL>
 <BR>[Called By]<UL><LI><a href="#[d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;board_init
 </UL>
@@ -1522,13 +1522,13 @@ Local Symbols
 <P><STRONG><a name="[d1]"></a>USARTx_TransmitData8</STRONG> (Thumb, 22 bytes, Stack size 8 bytes, bsp_uart.o(.text.USARTx_TransmitData8))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = USARTx_TransmitData8
 </UL>
-<BR>[Called By]<UL><LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART_printf
+<BR>[Called By]<UL><LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UARTx_printf
 </UL>
 
 <P><STRONG><a name="[d2]"></a>itoa</STRONG> (Thumb, 204 bytes, Stack size 32 bytes, bsp_uart.o(.text.itoa))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = itoa
 </UL>
-<BR>[Called By]<UL><LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART_printf
+<BR>[Called By]<UL><LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UARTx_printf
 </UL>
 
 <P><STRONG><a name="[e2]"></a>_fp_digits</STRONG> (Thumb, 366 bytes, Stack size 64 bytes, printfa.o(i._fp_digits), UNUSED)

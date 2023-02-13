@@ -5,15 +5,14 @@
 
 #include <stdarg.h>
 //------------------------------ 用户宏定义 ----------------------------------
+#define USART_RX_BUF_SIZE 128
+#define REC_LENGTH 1 // 串口一次接受数据大小, 建议为1
 //------------------------------ 用户变量定义 --------------------------------
-uint8_t pRxBuffer[USART_RX_BUF_SIZE];
-uint8_t pTxBuffer[USART_TX_BUF_SIZE];
-uint8_t UARTx_temp[REC_LENGTH];
-uint8_t rxCount;
-uint8_t txCount;
 
-static struct ringbuffer rx_rb;
 UartObject_t uart2;
+static struct ringbuffer rx_rb;
+static uint8_t UARTx_temp[REC_LENGTH];
+static uint8_t pRxBuffer[USART_RX_BUF_SIZE];
 
 static char *itoa(int value, char *string, int radix);
 
@@ -21,8 +20,6 @@ static void USARTx_TransmitData8(UART_HandleTypeDef *huart, uint8_t ch)
 {
     huart->Instance->DR = ch;
 }
-
-static UART_Tranmist(char *data);
 
 void uart_init(void)
 {
@@ -34,91 +31,14 @@ void uart_init(void)
 
     uart2.rx_Count = 0;
     uart2.rx_Buffer = &rx_rb;
+
+    // 开启 接受中断
+    HAL_UART_Receive_IT(&huart2, (uint8_t *)UARTx_temp, REC_LENGTH);
 }
 
-static UART_TranmistByte(uint8_t byte);
-
-void uart_sendByte(UART_HandleTypeDef *huart, uint8_t ch)
+void UARTx_SendData(UART_HandleTypeDef *huart, uint8_t *buf, uint16_t length)
 {
-#if USING_RS485
-    RS485_TX_EN();
-    delayus(5);
-#endif
-
-    HAL_UART_Transmit(huart, &ch, 1, 1000);
-
-#if USING_RS485
-    RS485_RX_EN();
-    delayus(5);
-#endif
-}
-
-/**
- * @brief Construct a new rx Data Handler object
- * @param None
- * @retval None
- */
-uint8_t UARTFlag;
-char dataString[10][10];
-void rxDataHandler(void)
-{
-    if (0 == rxCount)
-    {
-        UARTFlag = 0;
-        printf("未接受到数据\r\n");
-        return;
-    }
-
-    // 初始化 数据 缓存
-    uint8_t i = 0;
-    char buf[64] = {0};
-    strcpy(buf, (char *)pRxBuffer);
-    memset(dataString, 0, sizeof(dataString));
-
-    char *pString = strtok((char *)(buf), "\n");
-    while (pString)
-    {
-        strcpy(dataString[i++], pString);
-        printf("%s\r\n", pString);
-        pString = strtok(NULL, "\n");
-    }
-    rxCount = 0;
-    memset(pRxBuffer, 0, sizeof(pRxBuffer));
-    UARTFlag = 1;
-}
-
-uint8_t Board_UARTGetCharBlocking(void)
-{
-#if USING_RS485
-    RS485_RX_EN();
-#endif
-    uint8_t ch;
-    while (0 == ringbuffer_data_len(&rx_rb))
-        ;
-
-    ringbuffer_getchar(&rx_rb, &ch);
-    // printf("%x\r\n", ch);
-    return ch;
-}
-
-/**
- * @brief 串口中断回调函数
- * @param 调用回调函数的串口
- * @note  串口每次收到数据以后都会关闭中断，如需重复使用，必须再次开启
- * @retval None
- */
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-    if (huart->Instance == USART2)
-    {
-        ringbuffer_putchar(&rx_rb, UARTx_temp[0]);
-        HAL_UART_Receive_IT(&huart2, (uint8_t *)UARTx_temp, REC_LENGTH);
-    }
-}
-
-void uart_sendString(UART_HandleTypeDef *huart, char *str)
-{
-    HAL_UART_Transmit(huart, (uint8_t *)str, strlen(str), 0xfff);
+    HAL_UART_Transmit(huart, buf, length, 0xffff);
 }
 
 /*
@@ -134,8 +54,8 @@ void uart_sendString(UART_HandleTypeDef *huart, char *str)
  *            		 USART2_printf( USART2, "\r\n %d \r\n", i );
  *            		 USART2_printf( USART2, "\r\n %s \r\n", j );
  */
-uint8_t buffer[2] = {0x0d, 0x0a};
-void USART_printf(UART_HandleTypeDef *huart, char *Data, ...)
+static uint8_t buffer[2] = {0x0d, 0x0a};
+void UARTx_printf(UART_HandleTypeDef *huart, char *Data, ...)
 {
     const char *s;
     int d;
@@ -218,6 +138,21 @@ void USART_printf(UART_HandleTypeDef *huart, char *Data, ...)
     }
 }
 
+/**
+ * @brief 串口中断回调函数
+ * @param 调用回调函数的串口
+ * @note  串口每次收到数据以后都会关闭中断，如需重复使用，必须再次开启
+ * @retval None
+ */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+    if (huart->Instance == USART2)
+    {
+        ringbuffer_putchar(&rx_rb, UARTx_temp[0]);
+        HAL_UART_Receive_IT(&huart2, UARTx_temp, REC_LENGTH);
+    }
+}
+
 /*
  * 函数名：itoa
  * 描述  ：将整形数据转换成字符串
@@ -227,7 +162,6 @@ void USART_printf(UART_HandleTypeDef *huart, char *Data, ...)
  *         -radix = 10
  * 输出  ：无
  * 返回  ：无
- * 调用  ：被USART2_printf()调用
  */
 static char *itoa(int value, char *string, int radix)
 {

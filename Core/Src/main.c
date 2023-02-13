@@ -101,7 +101,7 @@ int main(void)
 
 	while (1)
 	{
-		ESP8266_CheckRecvDataTest();
+		// ESP8266_CheckRecvDataTest();
 		//		G_dht11.get_data();
 		//		delay_ms(1000);
 		//		printf("temp:%.02f humi:%.02f\r\n", G_dht11.obj.temperature, G_dht11.obj.humidity);

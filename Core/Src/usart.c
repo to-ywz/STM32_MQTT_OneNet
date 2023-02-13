@@ -80,7 +80,7 @@ void MX_USART2_UART_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN USART2_Init 2 */
-  HAL_UART_Receive_IT(&huart2, (uint8_t *)UARTx_temp, REC_LENGTH);
+
   /* USER CODE END USART2_Init 2 */
 }
 
