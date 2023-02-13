@@ -7,6 +7,8 @@
 "dht11_onenet_noos\usart.o"
 "dht11_onenet_noos\stm32f4xx_it.o"
 "dht11_onenet_noos\stm32f4xx_hal_msp.o"
+"dht11_onenet_noos\ringbuffer.o"
+"dht11_onenet_noos\bsp_esp8266_test.o"
 "dht11_onenet_noos\stm32f4xx_hal_tim.o"
 "dht11_onenet_noos\stm32f4xx_hal_tim_ex.o"
 "dht11_onenet_noos\stm32f4xx_hal_uart.o"
@@ -28,6 +30,8 @@
 "dht11_onenet_noos\hw_dht11.o"
 "dht11_onenet_noos\board.o"
 "dht11_onenet_noos\bsp_gpio.o"
+"dht11_onenet_noos\bsp_uart.o"
+"dht11_onenet_noos\esp8266.o"
 --library_type=microlib --strict --scatter "DHT11_OneNet_NoOS\DHT11_OneNet_NoOS.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

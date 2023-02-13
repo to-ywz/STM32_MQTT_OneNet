@@ -16,11 +16,11 @@
     #define PIN_MAX_NUM 48
 #endif
 
-typedef struct Pin_Type
-{
-    uint8_t port;
-    uint16_t pin;
-} Pin_Type;
+// typedef struct Pin_Type
+// {
+//     uint8_t port;
+//     uint16_t pin;
+// } Pin_Type;
 
 
 #define GET_PIN(pin) pin % GPIO_PRE_PIN  // 获取引脚号

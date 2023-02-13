@@ -1,5 +1,11 @@
-MDK-ARM/DHT11_OneNet_NoOS/*.d
+MDK-ARM/DHT11_OneNet_NoOS/*.*
 MDK-ARM/DHT11_OneNet_NoOS/*.o
 MDK-ARM/DHT11_OneNet_NoOS/*.i
 MDK-ARM/DHT11_OneNet_NoOS/*.axf
 MDK-ARM/DHT11_OneNet_NoOS/*.hex
+MDK-ARM/DHT11_OneNet_NoOS/*.htm
+MDK-ARM/DHT11_OneNet_NoOS/*.map
+MDK-ARM/DHT11_OneNet_NoOS.uvguix.codesheep
+MDK-ARM/DHT11_OneNet_NoOS.uvoptx
+MDK-ARM/DHT11_OneNet_NoOS/*.*
+MDK-ARM/DHT11_OneNet_NoOS.uvguix.codesheep

@@ -34,6 +34,10 @@
         "stm32f4xx_hal_rcc.h": "c",
         "board.h": "c",
         "bsp_gpio_def.h": "c",
-        "led.h": "c"
+        "led.h": "c",
+        "gpio.h": "c",
+        "stdio.h": "c",
+        "esp8266.h": "c",
+        "bsp_uart.h": "c"
     }
 }

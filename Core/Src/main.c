@@ -24,6 +24,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
+#include "bsp_esp8266_test.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -88,17 +89,23 @@ int main(void)
 	MX_USART1_UART_Init();
 	MX_USART2_UART_Init();
 	/* USER CODE BEGIN 2 */
+
 	board_init();
 	G_led_list.setupMode(0, LED_Heartbeat);
+	ESP8266_StaTcpClient_Unvarnish_ConfigTest();
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
+	uint8_t ch = 0;
+
 	while (1)
 	{
-		G_dht11.get_data();
-		delay_ms(1000);
-		printf("temp:%.02f humi:%.02f\r\n", G_dht11.obj.temperature, G_dht11.obj.humidity);
+		ESP8266_CheckRecvDataTest();
+		//		G_dht11.get_data();
+		//		delay_ms(1000);
+		//		printf("temp:%.02f humi:%.02f\r\n", G_dht11.obj.temperature, G_dht11.obj.humidity);
+
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
