@@ -180,3 +180,4 @@ static void hw_pin_toggle(uint16_t pin_num)
 
     HAL_GPIO_TogglePin(port, pin);
 }
+//==================================================End=================================================

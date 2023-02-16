@@ -1,107 +1,95 @@
 #ifndef _ESP8266_H_
 #define _ESP8266_H_
 
+#include "stdint.h"
 
-#include "stm32f4xx.h"
-#include <stdio.h>
-#include <stdbool.h>
-#include "bsp_esp8266_test.h"
-#include "usart.h"
-#include "bsp_gpio.h"
-#include <string.h>
+#define ESP8266_RXBUF_SIZE 50
 
-
-#if defined ( __CC_ARM   )
-#pragma anon_unions
-#endif
-
-/******************************** ESP8266 使用的USARTx ***********************************/
-#define   macESP8266_USARTx                 				&huart2
-
-
-/******************************* ESP8266 数据类型定义 ***************************/
-typedef enum{
-	STA,
-  AP,
-  STA_AP  
-} ENUM_Net_ModeTypeDef;
-
-
-typedef enum{
-	 enumTCP,
-	 enumUDP,
-} ENUM_NetPro_TypeDef;
-	
-
-typedef enum{
-	Multiple_ID_0 = 0,
-	Multiple_ID_1 = 1,
-	Multiple_ID_2 = 2,
-	Multiple_ID_3 = 3,
-	Multiple_ID_4 = 4,
-	Single_ID_0 = 5,
-} ENUM_ID_NO_TypeDef;
-	
-
-typedef enum{
-	OPEN = 0,
-	WEP = 1,
-	WPA_PSK = 2,
-	WPA2_PSK = 3,
-	WPA_WPA2_PSK = 4,
-} ENUM_AP_PsdMode_TypeDef;
-
-#define ESP8266_RST_PIN 34
-#define ESP8266_EN_PIN 35
-
-/******************************* ESP8266 外部全局变量声明 ***************************/
-#define RX_BUF_MAX_LEN     1024                                     //最大接收缓存字节数
-
-extern struct  STRUCT_USARTx_Fram                                  //串口数据帧的处理结构体
+/*定义接收状态枚举*/
+typedef enum Esp8266RxStatus
 {
-	char  Data_RX_BUF [ RX_BUF_MAX_LEN ];
-	
-  union {
-    __IO uint16_t InfAll;
-    struct {
-		  __IO uint16_t FramLength       :15;                               // 14:0 
-		  __IO uint16_t FramFinishFlag   :1;                                // 15 
-	  } InfBit;
-  }; 
-	
-} strEsp8266_Fram_Record;
+	Esp8266_RxNone,	 // 未开始接收
+	Esp8266_RxWait,	 // 正在接收中
+	Esp8266_RxFinish // 接收完成
+} Esp8266RxStatus_t;
 
-extern struct STRUCT_USARTx_Fram strUSART_Fram_Record;
+/*定义命定发送结果枚举*/
+typedef enum Esp8266TxStatus
+{
+	Esp8266_TxFial,	   // 发送失败
+	Esp8266_RxSucceed, // 发送成功
+} Esp8266TxStatus_t;
 
-/*********************************************** ESP8266 函数宏定义 *******************************************/
-#define     macESP8266_Usart( fmt, ... )           UARTx_printf (macESP8266_USARTx, fmt, ##__VA_ARGS__ ) 
-#define     macPC_Usart( fmt, ... )                printf ( fmt, ##__VA_ARGS__ )    
+/*定义传输模式枚举*/
+typedef enum Esp8266CIPMode
+{
+	Esp8266_NormalMode, // 正常模式
+	Esp8266_TransMode	// 透传模式
+} Esp8266CIPMode_t;
 
-#define     macESP8266_CH_ENABLE()                 bsp_pin_write ( ESP8266_EN_PIN, GPIO_PIN_SET)
-#define     macESP8266_CH_DISABLE()                bsp_pin_write ( ESP8266_EN_PIN, GPIO_PIN_RESET)
+/*定义ESP8266的WIFI模式*/
+typedef enum Esp8266CWMode
+{
+	Esp8266_StationMode, // station 模式
+	Esp8266_SoftAPMode,	 // softAP 模式
+	Esp8266_MixedMode	 // softAP + station 模式
+} Esp8266CWMode_t;
 
-#define     macESP8266_RST_HIGH_LEVEL()            bsp_pin_write ( ESP8266_RST_PIN, GPIO_PIN_SET)
-#define     macESP8266_RST_LOW_LEVEL()             bsp_pin_write ( ESP8266_RST_PIN, GPIO_PIN_RESET)
+/*定义网络连接信息枚举*/
+typedef enum Esp8266CIPStatus
+{
+	Esp8266_Timeout = 0,	// 超时
+	Esp8266_Error = 1,		// 错误
+	Esp8266_GotIP = 2,		// 获得IP地址
+	Esp8266_Connected = 3,	// 连接正常
+	Esp8266_Disconnect = 4, // 断开连接
+	Esp8266_NoWifi = 5		// 未连接到 WiFi
+} Esp8266CIPStatus_t;
 
+/* 预留拓展
+typedef struct Esp8266Info
+{
+	Esp8266CWMode_t cwMode;	// WIFI模式
+	Esp8266CIPMode_t cipMode; // 传输模式，正常或透传
+} Esp8266Info_t;
+*/
+/*定义ESP8266对象*/
+typedef struct Esp8266Object
+{
+	uint16_t rstPin;		  // 复位引脚
+	Esp8266CWMode_t cwMode;	  // WIFI模式
+	Esp8266CIPMode_t cipMode; // 传输模式，正常或透传
+	struct EspRxBuffer
+	{
+		uint8_t queue[ESP8266_RXBUF_SIZE]; // 数据存储队列
+		uint8_t lengthRecieving;		   // 正在接收的数据长度
+		uint8_t lengthRecieved;			   // 已经接收的数据长度
+	} rxBuffer;
+	void (*SendData)(uint8_t *uData, uint16_t uSize); // 数据发送函数指针
+	void (*Delayms)(volatile uint32_t nTime);		  // 延时操作指针
+} Esp8266Object_t;
 
-/****************************************** ESP8266 函数声明 ***********************************************/
-void                     ESP8266_Init                        ( void );
-void                     ESP8266_Rst                         ( void );
-bool                     ESP8266_Cmd                         ( char * cmd, char * reply1, char * reply2, uint32_t waittime );
-bool                     ESP8266_AT_Test                     ( void );
-bool                     ESP8266_Net_Mode_Choose             ( ENUM_Net_ModeTypeDef enumMode );
-bool                     ESP8266_JoinAP                      ( char * pSSID, char * pPassWord );
-bool                     ESP8266_BuildAP                     ( char * pSSID, char * pPassWord, ENUM_AP_PsdMode_TypeDef enunPsdMode );
-bool                     ESP8266_Enable_MultipleId           ( FunctionalState enumEnUnvarnishTx );
-bool                     ESP8266_Link_Server                 ( ENUM_NetPro_TypeDef enumE, char * ip, char * ComNum, ENUM_ID_NO_TypeDef id);
-bool                     ESP8266_StartOrShutServer           ( FunctionalState enumMode, char * pPortNum, char * pTimeOver );
-uint8_t                  ESP8266_Get_LinkStatus              ( void );
-uint8_t                  ESP8266_Get_IdLinkStatus            ( void );
-uint8_t                  ESP8266_Inquire_ApIp                ( char * pApIp, uint8_t ucArrayLength );
-bool                     ESP8266_UnvarnishSend               ( void );
-void                     ESP8266_ExitUnvarnishSend           ( void );
-bool                     ESP8266_SendString                  ( FunctionalState enumEnUnvarnishTx, char * pStr, uint32_t ulStrLength, ENUM_ID_NO_TypeDef ucId );
-char *                   ESP8266_ReceiveString               ( FunctionalState enumEnUnvarnishTx );
+/*定义ESP8266数据发送指针类型*/
+typedef void (*ESP8266SendData_t)(uint8_t *uData, uint16_t uSize);
+/*延时操作指针*/
+typedef void (*ESP8266Delayms_t)(volatile uint32_t nTime);
 
+/*ESP8266对象初始化*/
+void Esp8266_ObjecInit(Esp8266Object_t *esp,	 // ESP8266对象
+					   uint16_t pinNum,			 // 复位引脚
+					   Esp8266CWMode_t cwMode,	 // WIFI模式
+					   Esp8266CIPMode_t cipMode, // 传输模式，正常或透传
+					   char *wifiName,			 // WIFI名称
+					   char *wifiPassword,		 // WIFI密码
+					   ESP8266SendData_t send,	 // 发送函数指针
+					   ESP8266Delayms_t delayms	 // 毫秒延时函数
+);
+
+/*ESP8266发送数据*/
+void Esp8266_sendData(Esp8266Object_t *esp, uint8_t *uData, uint16_t uSize);
+
+/*检查模块的连接是否正常*/
+Esp8266CIPStatus_t Esp8266_CheckConnection(Esp8266Object_t *esp, uint16_t timeout);
 
 #endif
+//==================================================End=================================================

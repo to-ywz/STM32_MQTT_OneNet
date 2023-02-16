@@ -58,7 +58,6 @@ typedef struct UartObject
 #define RS485_TX_EN() set_pin_hig(RS485_RE_Port, RS485_RE_Pin)
 #endif
 
-
 extern UartObject_t uart2;
 
 //---------------------------- 接口函数 ------------------------------------

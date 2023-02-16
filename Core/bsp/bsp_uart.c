@@ -138,6 +138,38 @@ void UARTx_printf(UART_HandleTypeDef *huart, char *Data, ...)
     }
 }
 
+extern Esp8266Object_t esp8266;
+/**
+ * @brief 因地制宜
+ *  根据自己需求定时将数据提取到 目的数组中
+ * 放在定时器中 50ms 一次(按需修改 )
+ *
+ */
+void UART_ProcessData(void)
+{
+    uint16_t len = ringbuffer_data_len(uart2.rx_Buffer);
+
+    if (!len)
+        return;
+
+    if (uart2.info.status != UART_REVICING)
+        return;
+    uint8_t temp = 0;
+
+    for (int i = 0; i < len; i++)
+    {
+        ringbuffer_getchar(uart2.rx_Buffer, &temp);
+        // buf[i] = temp;
+        esp8266.rxBuffer.queue[esp8266.rxBuffer.lengthRecieving++] = temp;
+    }
+
+    /* 这里在提取完毕数据后清空
+        if (一帧结束判定条件)
+            uart2.rx_Count = 0;
+            uart2.info.status = UART_REVICED;
+    */
+}
+
 /**
  * @brief 串口中断回调函数
  * @param 调用回调函数的串口
@@ -149,7 +181,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     if (huart->Instance == USART2)
     {
         ringbuffer_putchar(&rx_rb, UARTx_temp[0]);
+        uart2.rx_Count++;
         HAL_UART_Receive_IT(&huart2, UARTx_temp, REC_LENGTH);
+        if (uart2.info.status == UART_IDEL)
+        {
+            uart2.info.status = UART_REVICING;
+        }
     }
 }
 

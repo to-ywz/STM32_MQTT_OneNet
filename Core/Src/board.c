@@ -11,19 +11,17 @@
 
 #include <stdio.h>
 #include "board.h"
-#include "esp8266.h"
 
 void board_init(void)
 {
     uint8_t error = 1;
 
-    uart_init();
     delay_Init();
     Led_Init();
     DHT11_Init();
-    ESP8266_Init();
+    esp8266Init();
     printf("board peripherals are initialized. by UART1\r\n");
-    //uart_sendString(&huart2, "board peripherals are initialized. by UART2\r\n");
+    // uart_sendString(&huart2, "board peripherals are initialized. by UART2\r\n");
 }
 
 // 寄存器版本
@@ -35,3 +33,4 @@ int fputc(int ch, FILE *f)
     USART1->DR = (uint8_t)ch;
     return ch;
 }
+//==================================================End=================================================

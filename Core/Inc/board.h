@@ -9,6 +9,7 @@
 #include "hw_dht11.h"
 #include "ringbuffer.h"
 #include "bsp_uart.h"
+#include "bsp_esp8266_test.h"
 
 #define LED0_PIN 105
 
