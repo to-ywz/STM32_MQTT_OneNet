@@ -83,7 +83,7 @@ void Led_Init(void)
     bsp_pin_mode(Pin_List[i], PIN_MODE_OUTPUT);
   }
   // 如果需要使某个LED处于其它模式, 可在这修改
-  // G_led_list.getLedMode = ON;
+  G_led_list.led[0].mode = LED_Heartbeat;
 
   Led_CheckMode();
 }

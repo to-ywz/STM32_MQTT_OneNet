@@ -30,8 +30,10 @@ static Esp8266TxStatus_t Esp8266_sendCommmand(Esp8266Object_t *esp, char *cmd, c
 // static void Esp8266_sendData(Esp8266Object_t *esp,uint8_t *uData, uint16_t uSize);
 /*ESP8266模块进入透传模式*/
 static Esp8266TxStatus_t Esp8266_enterTrans(Esp8266Object_t *esp);
-
+/*ESP8266复位*/
 static void Esp8266_Restart(Esp8266Object_t *esp);
+/*ESP8266 初始化*/
+static void Esp8266_GpioInit(uint16_t pinNum);
 
 /**
  * @brief 				ESP8266对象初始化
@@ -71,18 +73,21 @@ void Esp8266_ObjecInit(Esp8266Object_t *esp,
 	esp->rxBuffer.lengthRecieved = 0;
 	clearReciveBuffer(esp);
 
+	Esp8266_GpioInit(pinNum);
 	Esp8266_Restart(esp);
 
 	uint8_t times = 0;
-	printf("Configure ESP8266 Mode\r\n");
+	printf("Configure ESP8266 Mode.\r\n");
 	// 设置工作模式 1：station模式   2：AP模式  3：兼容 AP+station模式
 	while (Esp8266_sendCommmand(esp, cwModeCmd[esp->cwMode], "OK", 50) == Esp8266_TxFial)
 	{
 		printf("Try to reconfigure the working mode agin.(%d)\r\n", times++);
 	}
+	printf("ESP8266 mode is configured.\r\n");
 
-	times = 0;
 	// 让Wifi模块重启的命令
+	times = 0;
+	printf("ESP9266 try to restart device.\r\n");
 	while (Esp8266_sendCommmand(esp, "AT+RST\r\n", "OK", 20) == Esp8266_TxFial)
 	{
 		printf("Try to restart the device agin.(%d)\r\n", times++);
@@ -90,24 +95,29 @@ void Esp8266_ObjecInit(Esp8266Object_t *esp,
 
 	esp->Delayms(3000); // 延时3S等待重启成功
 
+	printf("ESP9266 is restarted.\r\n");
 	if (esp->cwMode == Esp8266_StationMode)
 	{
 		sprintf(cwjap, "AT+CWJAP_CUR=\"%s\",\"%s\"\r\n", wifiName, wifiPassword);
 
-		times = 0;
 		// 让模块连接上自己的路由
+		times = 0;
+		printf("Try to join the Wi-Fi\r\n");
 		while (Esp8266_sendCommmand(esp, cwjap, "OK", 600) == Esp8266_TxFial)
 		{
 			printf("Try to join the Wi-Fi agin.(%d)\r\n", times++);
 		}
+		printf("Wi-Fi is connected.\r\n");
 
 		if (esp->cipMode == Esp8266_TransMode)
 		{
 			times = 0;
+			printf("Try to connect server.\r\n");
 			while (Esp8266_enterTrans(esp) == Esp8266_TxFial)
 			{
-				printf("Try to reconfigure the send mode agin.(%d)\r\n", times++);
+				printf("Try to connect the web server agin.(%d)\r\n", times++);
 			}
+			printf("Web server is connected.\r\n");
 		}
 		else
 		{
@@ -156,7 +166,8 @@ static Esp8266TxStatus_t Esp8266_enterTrans(Esp8266Object_t *esp)
 	}
 
 	// 建立TCP连接  这四项分别代表了 要连接的ID号0~4   连接类型  远程服务器IP地址   远程服务器端口号
-	//  while(Esp8266_sendCommmand(esp,"AT+CIPSTART=\"TCP\",\"xxx.xxx.xxx.xxx\",xxxx","CONNECT",200));
+	while (Esp8266_sendCommmand(esp, "AT+CIPSTART=\"TCP\",macUser_ESP8266_TcpServer_IP,macUser_ESP8266_TcpServer_Port", "CONNECT", 200))
+		;
 
 	// 是否开启透传模式  0：表示关闭 1：表示开启透传
 	status = Esp8266_sendCommmand(esp, "AT+CIPMODE=1\r\n", "OK", 200);
@@ -337,6 +348,17 @@ static void clearReciveBuffer(Esp8266Object_t *esp)
 	esp->rxBuffer.lengthRecieving = 0;
 
 	memset(esp->rxBuffer.queue, 0, sizeof(esp->rxBuffer.queue));
+}
+
+/**
+ * @brief 		初始化复位引脚
+ *
+ * @param pinNum 引脚编号
+ */
+static void Esp8266_GpioInit(uint16_t pinNum)
+{
+	bsp_pin_mode(pinNum, PIN_MODE_OUTPUT);
+	bsp_pin_write(pinNum, 1);
 }
 
 /**

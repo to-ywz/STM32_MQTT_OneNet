@@ -20,9 +20,12 @@
 #define macUser_ESP8266_ApSsid "CCTV6"      // 要连接的热点的名称
 #define macUser_ESP8266_ApPwd "15905890644" // 要连接的热点的密钥
 
+#define macUser_ESP8266_TcpServer_IP "192.168.0.102" // 要连接的服务器的 IP
+#define macUser_ESP8266_TcpServer_Port "1347"        // 要连接的服务器的端口
+/*
 #define macUser_ESP8266_TcpServer_IP "183.230.40.39" // 要连接的服务器的 IP
 #define macUser_ESP8266_TcpServer_Port "6002"        // 要连接的服务器的端口
-
+*/
 #define macUser_ESP8266_RESTART_PIN 34
 
 /********************************** 外部全局变量 ***************************************/

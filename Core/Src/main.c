@@ -91,7 +91,7 @@ int main(void)
 	/* USER CODE BEGIN 2 */
 
 	board_init();
-	G_led_list.setupMode(0, LED_Heartbeat);
+
 	//ESP8266_StaTcpClient_Unvarnish_ConfigTest();
 	/* USER CODE END 2 */
 
