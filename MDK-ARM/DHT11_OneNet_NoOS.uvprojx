@@ -435,9 +435,9 @@
               <FilePath>..\Core\Src\ringbuffer.c</FilePath>
             </File>
             <File>
-              <FileName>bsp_esp8266_test.c</FileName>
+              <FileName>bsp_esp8266.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Core\net\bsp_esp8266_test.c</FilePath>
+              <FilePath>..\Core\net\bsp_esp8266.c</FilePath>
             </File>
           </Files>
         </Group>

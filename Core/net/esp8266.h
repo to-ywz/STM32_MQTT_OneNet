@@ -3,7 +3,7 @@
 
 #include "stdint.h"
 
-#define ESP8266_RXBUF_SIZE 50
+#define ESP8266_RXBUF_SIZE 128
 
 /*定义接收状态枚举*/
 typedef enum Esp8266RxStatus

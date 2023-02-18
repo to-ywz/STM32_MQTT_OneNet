@@ -157,41 +157,9 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>368</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134221106</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\Core\net\esp8266.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\DHT11_OneNet_NoOS\../Core/net/esp8266.c\368</Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
-          <LineNumber>159</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134230362</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\Core\bsp\bsp_uart.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\DHT11_OneNet_NoOS\../Core/bsp/bsp_uart.c\159</Expression>
-        </Bp>
-        <Bp>
-          <Number>2</Number>
-          <Type>0</Type>
           <LineNumber>150</LineNumber>
           <EnabledFlag>0</EnabledFlag>
-          <Address>134230248</Address>
+          <Address>134230288</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -203,11 +171,11 @@
           <Expression>\\DHT11_OneNet_NoOS\../Core/bsp/bsp_uart.c\150</Expression>
         </Bp>
         <Bp>
-          <Number>3</Number>
+          <Number>1</Number>
           <Type>0</Type>
           <LineNumber>77</LineNumber>
           <EnabledFlag>0</EnabledFlag>
-          <Address>134220550</Address>
+          <Address>134220578</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -219,11 +187,11 @@
           <Expression>\\DHT11_OneNet_NoOS\../Core/net/esp8266.c\77</Expression>
         </Bp>
         <Bp>
-          <Number>4</Number>
+          <Number>2</Number>
           <Type>0</Type>
           <LineNumber>115</LineNumber>
           <EnabledFlag>0</EnabledFlag>
-          <Address>134220882</Address>
+          <Address>134220898</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -235,11 +203,11 @@
           <Expression>\\DHT11_OneNet_NoOS\../Core/net/esp8266.c\115</Expression>
         </Bp>
         <Bp>
-          <Number>5</Number>
+          <Number>3</Number>
           <Type>0</Type>
           <LineNumber>128</LineNumber>
           <EnabledFlag>0</EnabledFlag>
-          <Address>134220976</Address>
+          <Address>134221010</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -251,23 +219,7 @@
           <Expression>\\DHT11_OneNet_NoOS\../Core/net/esp8266.c\128</Expression>
         </Bp>
         <Bp>
-          <Number>6</Number>
-          <Type>0</Type>
-          <LineNumber>95</LineNumber>
-          <EnabledFlag>0</EnabledFlag>
-          <Address>134220718</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\Core\net\esp8266.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\DHT11_OneNet_NoOS\../Core/net/esp8266.c\95</Expression>
-        </Bp>
-        <Bp>
-          <Number>7</Number>
+          <Number>4</Number>
           <Type>0</Type>
           <LineNumber>162</LineNumber>
           <EnabledFlag>1</EnabledFlag>
@@ -507,8 +459,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Core\net\bsp_esp8266_test.c</PathWithFileName>
-      <FilenameWithoutPath>bsp_esp8266_test.c</FilenameWithoutPath>
+      <PathWithFileName>..\Core\net\bsp_esp8266.c</PathWithFileName>
+      <FilenameWithoutPath>bsp_esp8266.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

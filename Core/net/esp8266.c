@@ -15,6 +15,18 @@
 #include "bsp_gpio.h"
 #include "esp8266.h"
 
+/********************************** 用户需要设置的参数**********************************/
+#define macUser_ESP8266_ApSsid "CCTV6"		// 要连接的热点的名称
+#define macUser_ESP8266_ApPwd "15905890644" // 要连接的热点的密钥
+
+#define macUser_ESP8266_TcpServer_IP "192.168.0.102" // 要连接的服务器的 IP
+#define macUser_ESP8266_TcpServer_Port 1347			 // 要连接的服务器的端口
+/*
+#define macUser_ESP8266_TcpServer_IP \"183.230.40.39\" // 要连接的服务器的 IP
+#define macUser_ESP8266_TcpServer_Port \"6002\"        // 要连接的服务器的端口
+*/
+#define macUser_ESP8266_RESTART_PIN 34
+
 /*定义WIFI模式配置指令*/
 char cwModeCmd[3][17] = {"AT+CWMODE_CUR=1\r\n",
 						 "AT+CWMODE_CUR=2\r\n",
@@ -157,6 +169,7 @@ void Esp8266_ObjecInit(Esp8266Object_t *esp,
 static Esp8266TxStatus_t Esp8266_enterTrans(Esp8266Object_t *esp)
 {
 	Esp8266TxStatus_t status = Esp8266_RxSucceed;
+	char buf[50] = {0};
 
 	//=0：单路连接模式     =1：多路连接模式
 	status = Esp8266_sendCommmand(esp, "AT+CIPMUX=0\r\n", "OK", 20);
@@ -166,8 +179,12 @@ static Esp8266TxStatus_t Esp8266_enterTrans(Esp8266Object_t *esp)
 	}
 
 	// 建立TCP连接  这四项分别代表了 要连接的ID号0~4   连接类型  远程服务器IP地址   远程服务器端口号
-	while (Esp8266_sendCommmand(esp, "AT+CIPSTART=\"TCP\",macUser_ESP8266_TcpServer_IP,macUser_ESP8266_TcpServer_Port", "CONNECT", 200))
-		;
+	//  while(Esp8266SendCommmand(esp,"AT+CIPSTART=\"TCP\",\"xxx.xxx.xxx.xxx\",xxxx","CONNECT",200));
+	sprintf(buf, "AT+CIPSTART=\"TCP\",\"%s\",%d\r\n", macUser_ESP8266_TcpServer_IP, macUser_ESP8266_TcpServer_Port);
+	while (Esp8266_sendCommmand(esp, buf, "CONNECT", 200))
+	{
+		return status;
+	}
 
 	// 是否开启透传模式  0：表示关闭 1：表示开启透传
 	status = Esp8266_sendCommmand(esp, "AT+CIPMODE=1\r\n", "OK", 200);
