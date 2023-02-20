@@ -39,6 +39,7 @@
         "stdio.h": "c",
         "esp8266.h": "c",
         "bsp_uart.h": "c",
-        "bsp_esp8266_test.h": "c"
+        "bsp_esp8266_test.h": "c",
+        "mqttkit.h": "c"
     }
 }

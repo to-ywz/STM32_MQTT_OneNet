@@ -65,7 +65,7 @@ void DHT11_Init(void)
     Dht11_Error_t error = DHT11_NoError;
 
     G_dht11.num = 0;
-    G_dht11.get_data = DHT11_get_data;
+    G_dht11.dataUpdate = DHT11_get_data;
 
     error = InitializeDHT11(&G_dht11.obj,
                             Dht11_pin_write,
@@ -86,5 +86,6 @@ void DHT11_Init(void)
     {
         printf("Can't find DHT11 device.\r\n");
     }
+    G_dht11.dataUpdate();
 }
 //==================================================End=================================================

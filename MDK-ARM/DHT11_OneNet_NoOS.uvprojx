@@ -329,7 +329,7 @@
             <uC99>1</uC99>
             <uGnu>0</uGnu>
             <useXO>0</useXO>
-            <v6Lang>3</v6Lang>
+            <v6Lang>5</v6Lang>
             <v6LangP>3</v6LangP>
             <vShortEn>1</vShortEn>
             <vShortWch>1</vShortWch>
@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F407xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;..\Core\bsp;..\Core\sensor;..\Core\net</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;..\Core\bsp;..\Core\sensor;..\Core\net;..\Core\net\device;..\Core\net\MQTT;..\Core\net\onenet\inc;..\Core\moudule\tlsf</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -433,11 +433,6 @@
               <FileName>ringbuffer.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Core\Src\ringbuffer.c</FilePath>
-            </File>
-            <File>
-              <FileName>bsp_esp8266.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Core\net\bsp_esp8266.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -575,9 +570,24 @@
           <GroupName>Net</GroupName>
           <Files>
             <File>
+              <FileName>bsp_esp8266.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\net\device\bsp_esp8266.c</FilePath>
+            </File>
+            <File>
               <FileName>esp8266.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Core\net\esp8266.c</FilePath>
+              <FilePath>..\Core\net\device\esp8266.c</FilePath>
+            </File>
+            <File>
+              <FileName>MqttKit.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\net\MQTT\MqttKit.c</FilePath>
+            </File>
+            <File>
+              <FileName>onenet.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\net\onenet\src\onenet.c</FilePath>
             </File>
           </Files>
         </Group>

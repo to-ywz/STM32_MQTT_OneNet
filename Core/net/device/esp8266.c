@@ -19,8 +19,8 @@
 #define macUser_ESP8266_ApSsid "CCTV6"		// 要连接的热点的名称
 #define macUser_ESP8266_ApPwd "15905890644" // 要连接的热点的密钥
 
-#define macUser_ESP8266_TcpServer_IP "192.168.0.102" // 要连接的服务器的 IP
-#define macUser_ESP8266_TcpServer_Port 1347			 // 要连接的服务器的端口
+#define macUser_ESP8266_TcpServer_IP "183.230.40.39" // 要连接的服务器的 IP
+#define macUser_ESP8266_TcpServer_Port 6002			 // 要连接的服务器的端口
 /*
 #define macUser_ESP8266_TcpServer_IP \"183.230.40.39\" // 要连接的服务器的 IP
 #define macUser_ESP8266_TcpServer_Port \"6002\"        // 要连接的服务器的端口
@@ -33,9 +33,9 @@ char cwModeCmd[3][17] = {"AT+CWMODE_CUR=1\r\n",
 						 "AT+CWMODE_CUR=3\r\n"};
 
 /*检查数据时是否接受完成*/
-static Esp8266RxStatus_t isRecieveFinished(Esp8266Object_t *esp);
+// static Esp8266RxStatus_t isRecieveFinished(Esp8266Object_t *esp);
 /*清除接收缓冲区*/
-static void clearReciveBuffer(Esp8266Object_t *esp);
+// void clearReciveBuffer(Esp8266Object_t *esp);
 /*ESP8266发送命令*/
 static Esp8266TxStatus_t Esp8266_sendCommmand(Esp8266Object_t *esp, char *cmd, char *ack, uint16_t timeOut);
 /*ESP8266发送数据*/
@@ -181,8 +181,9 @@ static Esp8266TxStatus_t Esp8266_enterTrans(Esp8266Object_t *esp)
 	// 建立TCP连接  这四项分别代表了 要连接的ID号0~4   连接类型  远程服务器IP地址   远程服务器端口号
 	//  while(Esp8266SendCommmand(esp,"AT+CIPSTART=\"TCP\",\"xxx.xxx.xxx.xxx\",xxxx","CONNECT",200));
 	sprintf(buf, "AT+CIPSTART=\"TCP\",\"%s\",%d\r\n", macUser_ESP8266_TcpServer_IP, macUser_ESP8266_TcpServer_Port);
-	while (Esp8266_sendCommmand(esp, buf, "CONNECT", 200))
+	if (Esp8266_TxFial == Esp8266_sendCommmand(esp, buf, "CONNECT", 200))
 	{
+		printf("TCP connect error.\r\n");
 		return status;
 	}
 
@@ -190,6 +191,7 @@ static Esp8266TxStatus_t Esp8266_enterTrans(Esp8266Object_t *esp)
 	status = Esp8266_sendCommmand(esp, "AT+CIPMODE=1\r\n", "OK", 200);
 	if (status == Esp8266_TxFial)
 	{
+		printf("Start CIP mode failed.\r\n");
 		return status;
 	}
 
@@ -333,7 +335,7 @@ static Esp8266TxStatus_t Esp8266_sendCommmand(Esp8266Object_t *esp, char *cmd, c
  * 					Esp8266_RxWait	: 正在接收数据
  * 					Esp8266_RxFinish: 数据接受完毕
  */
-static Esp8266RxStatus_t isRecieveFinished(Esp8266Object_t *esp)
+Esp8266RxStatus_t isRecieveFinished(Esp8266Object_t *esp)
 {
 	// 尚未开始接收数据
 	if (esp->rxBuffer.lengthRecieving == 0)
@@ -360,7 +362,7 @@ static Esp8266RxStatus_t isRecieveFinished(Esp8266Object_t *esp)
  *
  * @param esp 	esp对象
  */
-static void clearReciveBuffer(Esp8266Object_t *esp)
+void clearReciveBuffer(Esp8266Object_t *esp)
 {
 	esp->rxBuffer.lengthRecieving = 0;
 

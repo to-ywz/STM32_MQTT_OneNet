@@ -15,7 +15,12 @@
                 "${workspaceFolder}/Core/bsp",
                 "${workspaceFolder}/Core/Inc",
                 "${workspaceFolder}/Core/sensor",
-                "${workspaceFolder}/Core/net"
+                "${workspaceFolder}/Core/net",
+                "${workspaceFolder}/Core/net/device",
+                "${workspaceFolder}/Core/net/MQTT",
+                "${workspaceFolder}/Core/net/onenet/inc",
+                "${workspaceFolder}/Core/moudule/tlsf",
+                ""
             ],
             "defines": [
                 "USE_HAL_DRIVER",

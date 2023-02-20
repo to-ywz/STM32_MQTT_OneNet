@@ -90,6 +90,8 @@ void Esp8266_sendData(Esp8266Object_t *esp, uint8_t *uData, uint16_t uSize);
 
 /*检查模块的连接是否正常*/
 Esp8266CIPStatus_t Esp8266_CheckConnection(Esp8266Object_t *esp, uint16_t timeout);
+Esp8266RxStatus_t isRecieveFinished(Esp8266Object_t *esp);
+void clearReciveBuffer(Esp8266Object_t *esp);
 
 #endif
 //==================================================End=================================================

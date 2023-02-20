@@ -25,6 +25,7 @@
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
 #include "bsp_esp8266.h"
+#include "onenet.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -91,24 +92,40 @@ int main(void)
 	/* USER CODE BEGIN 2 */
 
 	board_init();
+	
+	while (!OneNET_DevLink()) // 接入OneNET
+	{
+		delay_ms(500);
+	}
 
-	//ESP8266_StaTcpClient_Unvarnish_ConfigTest();
+	// ESP8266_StaTcpClient_Unvarnish_ConfigTest();
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
-	uint8_t ch = 0;
-
+	uint8_t *dataPtr = NULL;
+	uint32_t tar_tick = HAL_GetTick() + 5000;
 	while (1)
 	{
-		// ESP8266_CheckRecvDataTest();
-		//		G_dht11.get_data();
-		//		delay_ms(1000);
-		//		printf("temp:%.02f humi:%.02f\r\n", G_dht11.obj.temperature, G_dht11.obj.humidity);
+		if (HAL_GetTick() >= tar_tick)
+		{
+			G_dht11.dataUpdate();
+			tar_tick = HAL_GetTick() + 5000;
+			printf("temp:%.02f humi:%.02f\r\n", G_dht11.obj.temperature, G_dht11.obj.humidity);
 
+			// 数据发送到云端
+			printf("Send data to web server.\r\n");
+			OneNET_SendData();
+			printf("Publish is Finished.\r\n");
+		}
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
+		dataPtr = OneNET_GetIPD(0);
+		if (dataPtr)
+		{
+			OneNET_RevPro(dataPtr);
+		}
 	}
 	/* USER CODE END 3 */
 }
