@@ -45,14 +45,91 @@
 
 #define DEVID "1043147880" // 设备ID
 
+OneNet_t G_oneNet;
+
 // 当正式环境注册码达到16个字符则启用自动创建功能，否则不启用
 // 如果要采用自动创建设备的方式，apikey必须为master-key，且正式环境注册码有效
-// ONETNET_INFO onenet_info = {"1043147880", "m=cXh=O8EFYps6fn7rKDcVZZrVU=",
+// ONETNET_INFO G_oneNet = {"1043147880", "m=cXh=O8EFYps6fn7rKDcVZZrVU=",
 // 							"570783", "2018101045",
 // 							"",
 // 							"183.230.40.39", "6002",
 // 							NULL, NULL, 0, 7, NULL, 0,
 // 							0, 0, 1, 0, 0, 0, 0, 0, 0};
+
+void OneNet_Init(char *device_id,
+				 char *api_key,
+				 char *auth_info,
+				 char *product_id,
+				 char *ip,
+				 char *port)
+{
+	G_oneNet.send_data = 7;
+	G_oneNet.cmd_ptr = NULL;
+
+	G_oneNet.SR.all = 0x0010; // HeartBeat 置位
+
+	G_oneNet.file_info.file_bin = NULL;
+	G_oneNet.file_info.file_bin_name = NULL;
+	G_oneNet.file_info.file_bin_size = 0;
+
+	memmove(ip, G_oneNet.web_info.ip, strlen(ip));
+	memmove(port, G_oneNet.web_info.port, strlen(port));
+
+	memmove(device_id, G_oneNet.user_info.dev_id, strlen(device_id));
+	memmove(api_key, G_oneNet.user_info.api_key, strlen(api_key));
+	memmove(auth_info, G_oneNet.user_info.auif, strlen(auth_info));
+	memmove(product_id, G_oneNet.user_info.pro_id, strlen(product_id));
+}
+
+// void OneNet_DevLink(const char *devid, const char *proid, const char *auth_info)
+//{
+
+//	MQTT_PACKET_STRUCTURE mqtt_packet = {NULL, 0, 0, 0}; // 协议包
+
+//	unsigned char time_out = 200;
+
+//	printf("OneNET_DevLink\r\nPROID: %s,	AUIF: %s,	DEVID:%s\r\n", proid, auth_info, devid);
+
+//	if (MQTT_PacketConnect(proid, auth_info, devid, 256, 0, MQTT_QOS_LEVEL0, NULL, NULL, 0, &mqtt_packet) == 0)
+//	{
+
+//		esp8266.SendData(mqtt_packet._data, mqtt_packet._len); // 上传平台
+//		// NET_DEVICE_AddDataSendList(mqtt_packet._data, mqtt_packet._len, 1);
+
+//		MQTT_DeleteBuffer(&mqtt_packet); // 删包
+
+//		while (--time_out)
+//		{
+//			if (G_oneNet.cmd_ptr != NULL)
+//			{
+//				OneNET_RevPro(G_oneNet.cmd_ptr);
+
+//				G_oneNet.cmd_ptr = NULL;
+
+//				break;
+//			}
+
+//			Delay_ms(10);
+//		}
+//	}
+//	else
+//		printf("WARN:	MQTT_PacketConnect Failed\r\n");
+
+//	if (G_oneNet.SR.bit.net_work) // 如果接入成功
+//	{
+//		G_oneNet.SR.bit.err_count = 0;
+//	}
+//	else
+//	{
+//		if (++G_oneNet.SR.bit.err_count >= 5) // 如果超过设定次数后，还未接入平台
+//		{
+//			G_oneNet.SR.bit.net_work = 0;
+//			G_oneNet.SR.bit.err_count = 0;
+
+//			G_oneNet.SR.bit.err_check = 1;
+//		}
+//	}
+//}
 
 /**
  * @brief 			获取平台返回的数据
@@ -60,7 +137,7 @@
  * @param timeOut 	等待的时间(乘以10ms)
  * @retval 			平台返回的原始数据
  *
- * @note			不同网络设备返回的格式不同，需要去调试
+ * @n ote			不同网络设备返回的格式不同，需要去调试
  * 					ESP8266的返回格式:
  * 					"+IPD,x:yyy"
  * 						x: 		数据长度
@@ -200,8 +277,9 @@ unsigned char OneNET_FillBuf(char *buf)
 //
 //	说明：
 //==========================================================
-void OneNET_SendData(void)
+uint8_t OneNET_SendData(void)
 {
+	static uint8_t err_cnt = 0;
 
 	MQTT_PACKET_STRUCTURE mqtt_packet = {NULL, 0, 0, 0}; // 协议包
 
@@ -228,6 +306,35 @@ void OneNET_SendData(void)
 		else
 			printf("WARN:	MQTT_NewBuffer Failed\r\n");
 	}
+
+	if (esp8266.rxBuffer.lengthRecieved)
+	{
+		if (esp8266.rxBuffer.queue[0] == '@')
+		{ // 校验数据是否发送成功
+			err_cnt = 0;
+			return 0;
+		}
+		err_cnt++;
+	}
+
+	if (err_cnt > 3)
+	{ // 15ms后重新连接
+		err_cnt = 0;
+		while (!OneNET_DevLink())
+		{
+			err_cnt++;
+			// 重启, 超过30次重启, 或者设置看门狗
+			if (err_cnt > 30)
+			{
+				err_cnt = 0;
+				esp8266Init();
+				OneNET_DevLink();
+			}
+		}
+		printf("ReConnect Server.\r\n");
+	}
+
+	return 1;
 }
 
 //==========================================================
@@ -304,3 +411,12 @@ void OneNET_RevPro(unsigned char *cmd)
 		MQTT_FreeBuffer(req_payload);
 	}
 }
+
+// void NET_Task(void)
+// {
+// 	static uint32_t err_cnt = 0; // 错误计数
+
+// 	if(MQTT_PacketPing)
+// }
+
+//==================================================End=================================================

@@ -53,6 +53,7 @@ extern "C" {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
+extern uint32_t Tick_counter;
 
 /* USER CODE END EFP */
 

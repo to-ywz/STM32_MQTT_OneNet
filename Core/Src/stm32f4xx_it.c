@@ -43,12 +43,12 @@ extern void UART_ProcessData(void);
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-static uint32_t counter = 0;
+uint32_t Tick_counter = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN PFP */
-
+extern void UART_ProcessData();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -186,15 +186,14 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
-  counter++;
+  Tick_counter++;
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */
-  if (counter > 50)
+  UART_ProcessData();
+  if (0 == Tick_counter % 50)
   {
-    UART_ProcessData();
     Led_CheckMode();
-    counter = 0;
   }
   /* USER CODE END SysTick_IRQn 1 */
 }

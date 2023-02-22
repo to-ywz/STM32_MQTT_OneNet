@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include "bsp_esp8266.h"
 #include "onenet.h"
+#include "MqttKit.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -39,7 +40,12 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-
+#define PROID "570783"		   // 产品ID
+#define AUTH_INFO "2018101045" // 鉴权信息
+#define DEVID "1043147880"	   // 设备ID
+#define APIKEY "m=cXh=O8EFYps6fn7rKDcVZZrVU="
+#define SERVER_IP "183.230.40.39"
+#define SERVER_PORT "6002"
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -92,11 +98,14 @@ int main(void)
 	/* USER CODE BEGIN 2 */
 
 	board_init();
-	
+
 	while (!OneNET_DevLink()) // 接入OneNET
 	{
 		delay_ms(500);
 	}
+
+	OneNet_Init(DEVID,
+				APIKEY, AUTH_INFO, PROID, SERVER_IP, SERVER_PORT);
 
 	// ESP8266_StaTcpClient_Unvarnish_ConfigTest();
 	/* USER CODE END 2 */
@@ -104,20 +113,28 @@ int main(void)
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 	uint8_t *dataPtr = NULL;
-	uint32_t tar_tick = HAL_GetTick() + 5000;
+
 	while (1)
 	{
-		if (HAL_GetTick() >= tar_tick)
+		if (Tick_counter >= 5000)
 		{
+			Tick_counter = 0;
+
 			G_dht11.dataUpdate();
-			tar_tick = HAL_GetTick() + 5000;
 			printf("temp:%.02f humi:%.02f\r\n", G_dht11.obj.temperature, G_dht11.obj.humidity);
 
 			// 数据发送到云端
 			printf("Send data to web server.\r\n");
-			OneNET_SendData();
-			printf("Publish is Finished.\r\n");
+			if (OneNET_SendData())
+			{
+				printf("Publish is Failed.\r\n");
+			}
+			else
+			{
+				printf("Publish is Finished.\r\n");
+			}
 		}
+
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
