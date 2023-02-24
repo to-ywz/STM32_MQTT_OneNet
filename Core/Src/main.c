@@ -114,10 +114,12 @@ int main(void)
 	/* USER CODE BEGIN WHILE */
 	uint8_t *dataPtr = NULL;
 
+	uint32_t heartbeat_timer = 0;
 	while (1)
 	{
 		if (Tick_counter >= 5000)
 		{
+			heartbeat_timer++;
 			Tick_counter = 0;
 
 			G_dht11.dataUpdate();
@@ -127,12 +129,18 @@ int main(void)
 			printf("Send data to web server.\r\n");
 			if (OneNET_SendData())
 			{
-				printf("Publish is Failed.\r\n");
+				printf("Publish is Failed.%c\r\n", esp8266.rxBuffer.queue[0]);
 			}
 			else
 			{
-				printf("Publish is Finished.\r\n");
+				printf("Publish is Finished%c\r\n", esp8266.rxBuffer.queue[0]);
 			}
+		}
+
+		if (heartbeat_timer >= 24)
+		{// 2h 重连一次
+			heartbeat_timer = 0;
+			OneNET_DevLink();
 		}
 
 		/* USER CODE END WHILE */

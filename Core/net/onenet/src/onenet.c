@@ -299,6 +299,7 @@ uint8_t OneNET_SendData(void)
 				mqtt_packet._data[mqtt_packet._len++] = buf[i++];
 			}
 
+			clearReciveBuffer(&esp8266);
 			esp8266.SendData(mqtt_packet._data, mqtt_packet._len);
 
 			MQTT_DeleteBuffer(&mqtt_packet);
@@ -307,23 +308,39 @@ uint8_t OneNET_SendData(void)
 			printf("WARN:	MQTT_NewBuffer Failed\r\n");
 	}
 
-	if (esp8266.rxBuffer.lengthRecieved)
+	/* 检测是否接受完毕 */
+	uint16_t rev_cnt = 0;
+	while (Esp8266_RxFinish != isRecieveFinished(&esp8266))
 	{
-		if (esp8266.rxBuffer.queue[0] == '@')
-		{ // 校验数据是否发送成功
-			err_cnt = 0;
-			return 0;
+		delay_ms(10);
+		if (rev_cnt++ > 100)
+		{
+			/* 输出错误数据*/
+			printf("%d%d%d%d\r\n", esp8266.rxBuffer.queue[0],
+				   esp8266.rxBuffer.queue[1],
+				   esp8266.rxBuffer.queue[2],
+				   esp8266.rxBuffer.queue[3]);
+			err_cnt++;
+			return 1;
 		}
-		err_cnt++;
 	}
 
+	/* 校验数据是否发送成功 */
+	if (esp8266.rxBuffer.queue[0] == '@')
+	{
+		err_cnt = 0;
+		return 0;
+	}
+
+	/* 15ms后重新连接 */
+	err_cnt++;
 	if (err_cnt > 3)
-	{ // 15ms后重新连接
+	{
 		err_cnt = 0;
 		while (!OneNET_DevLink())
 		{
 			err_cnt++;
-			// 重启, 超过30次重启, 或者设置看门狗
+			// 重启, 超过30次重启, 后期设置看门狗实现复位
 			if (err_cnt > 30)
 			{
 				err_cnt = 0;

@@ -120,6 +120,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
+          <Name></Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -156,22 +157,6 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>150</LineNumber>
-          <EnabledFlag>0</EnabledFlag>
-          <Address>134235296</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\Core\bsp\bsp_uart.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\DHT11_OneNet_NoOS\../Core/bsp/bsp_uart.c\150</Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
           <LineNumber>224</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>134233490</Address>
@@ -186,11 +171,11 @@
           <Expression>\\DHT11_OneNet_NoOS\../Core/net/onenet/src/onenet.c\224</Expression>
         </Bp>
         <Bp>
-          <Number>2</Number>
+          <Number>1</Number>
           <Type>0</Type>
-          <LineNumber>330</LineNumber>
+          <LineNumber>331</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134234476</Address>
+          <Address>134234482</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -199,26 +184,26 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>..\Core\net\onenet\src\onenet.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\DHT11_OneNet_NoOS\../Core/net/onenet/src/onenet.c\330</Expression>
+          <Expression>\\DHT11_OneNet_NoOS\../Core/net/onenet/src/onenet.c\331</Expression>
         </Bp>
         <Bp>
-          <Number>3</Number>
+          <Number>2</Number>
           <Type>0</Type>
-          <LineNumber>161</LineNumber>
+          <LineNumber>303</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134235364</Address>
+          <Address>134234316</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\Core\bsp\bsp_uart.c</Filename>
+          <Filename>..\Core\net\onenet\src\onenet.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\DHT11_OneNet_NoOS\../Core/bsp/bsp_uart.c\161</Expression>
+          <Expression>\\DHT11_OneNet_NoOS\../Core/net/onenet/src/onenet.c\303</Expression>
         </Bp>
         <Bp>
-          <Number>4</Number>
+          <Number>3</Number>
           <Type>0</Type>
           <LineNumber>162</LineNumber>
           <EnabledFlag>1</EnabledFlag>
@@ -243,29 +228,19 @@
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>esp8266.rxBuffer.queue</ItemText>
+          <ItemText>esp8266.rxBuffer</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
           <WinNumber>1</WinNumber>
           <ItemText>uart2</ItemText>
         </Ww>
-        <Ww>
-          <count>3</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>G_dht11</ItemText>
-        </Ww>
-        <Ww>
-          <count>4</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>mqtt_packet</ItemText>
-        </Ww>
       </WatchWindow1>
       <MemoryWindow1>
         <Mm>
           <WinNumber>1</WinNumber>
           <SubType>8</SubType>
-          <ItemText>0x080028FE</ItemText>
+          <ItemText>0x20000294</ItemText>
           <AccSizeX>0</AccSizeX>
         </Mm>
       </MemoryWindow1>
@@ -393,7 +368,7 @@
       <GroupNumber>2</GroupNumber>
       <FileNumber>4</FileNumber>
       <FileType>1</FileType>
-      <tvExp>1</tvExp>
+      <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>../Core/Src/main.c</PathWithFileName>

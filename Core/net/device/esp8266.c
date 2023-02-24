@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "bsp_uart.h"
 #include "bsp_gpio.h"
 #include "esp8266.h"
 
@@ -364,8 +365,8 @@ Esp8266RxStatus_t isRecieveFinished(Esp8266Object_t *esp)
  */
 void clearReciveBuffer(Esp8266Object_t *esp)
 {
+	esp->rxBuffer.lengthRecieved = 0;
 	esp->rxBuffer.lengthRecieving = 0;
-
 	memset(esp->rxBuffer.queue, 0, sizeof(esp->rxBuffer.queue));
 }
 
