@@ -173,9 +173,9 @@
         <Bp>
           <Number>1</Number>
           <Type>0</Type>
-          <LineNumber>331</LineNumber>
+          <LineNumber>323</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134234482</Address>
+          <Address>134234434</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -184,26 +184,10 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>..\Core\net\onenet\src\onenet.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\DHT11_OneNet_NoOS\../Core/net/onenet/src/onenet.c\331</Expression>
+          <Expression>\\DHT11_OneNet_NoOS\../Core/net/onenet/src/onenet.c\323</Expression>
         </Bp>
         <Bp>
           <Number>2</Number>
-          <Type>0</Type>
-          <LineNumber>303</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134234316</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\Core\net\onenet\src\onenet.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\DHT11_OneNet_NoOS\../Core/net/onenet/src/onenet.c\303</Expression>
-        </Bp>
-        <Bp>
-          <Number>3</Number>
           <Type>0</Type>
           <LineNumber>162</LineNumber>
           <EnabledFlag>1</EnabledFlag>

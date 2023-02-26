@@ -18,7 +18,7 @@ typedef union
     } bit;
     unsigned short all;
 
-} OneNet_Statue_t;
+} onenet_statue_t;
 
 /* 文件信息 */
 typedef struct
@@ -26,7 +26,7 @@ typedef struct
     char *file_bin_name;           // bin 文件名称
     const unsigned char *file_bin; // bin 文件
     unsigned int file_bin_size;    // bin 文件大小
-} OneNet_FileInfo_t;
+} onenet_file_info_t;
 
 /* 用户信息 */
 typedef struct
@@ -38,7 +38,7 @@ typedef struct
     char auif[50];   // 权鉴信息
 
     char reg_code[24]; // 注册码
-} OneNet_UserInfo_t;
+} onenet_user_info_t;
 
 /* Server 信息 */
 typedef struct
@@ -49,22 +49,22 @@ typedef struct
     const unsigned char protocol; // 协议类型号		1-edp	2-nwx	3-jtext		4-Hiscmd
                                   //				5-jt808			6-modbus	7-mqtt
                                   //				8-gr20			9-reg		10-HTTP(自定义)
-} OneNet_WebInfo_t;
+} onenet_web_info_t;
 
 /*OneNet结构体*/
 typedef struct
 {
-    OneNet_WebInfo_t web_info;   // 云端信息
-    OneNet_UserInfo_t user_info; // 用户信息
-    OneNet_FileInfo_t file_info; // 远程升级信息
-    OneNet_Statue_t SR;           // OneNet 连接状态
+    onenet_web_info_t web_info;   // 云端信息
+    onenet_user_info_t user_info; // 用户信息
+    onenet_file_info_t file_info; // 远程升级信息
+    onenet_statue_t SR;           // OneNet 连接状态
 
     unsigned char send_data; // 发送数据的类型
     unsigned char *cmd_ptr;  // 收到的云端命令
 
-} OneNet_t;
+} onenet_t;
 
-extern OneNet_t G_oneNet;
+extern onenet_t G_oneNet;
 
 #define SEND_TYPE_OK			(1 << 0)	// 发送完毕
 #define SEND_TYPE_DATA			(1 << 1)	// 需要再次发送
@@ -74,10 +74,13 @@ extern OneNet_t G_oneNet;
 #define SEND_TYPE_UNSUBSCRIBE	(1 << 5)	// 发送取消订阅
 #define SEND_TYPE_BINFILE		(1 << 6)	// 发送二进制文件
 
-
+uint8_t onenet_dev_link(const char *devid, const char *proid, const char *auth_info);
+unsigned char onenet_send_heart(void);
+_Bool onenet_check_heart(void);
+unsigned char onenet_publish(const char *topic, const char *msg);
+void onenet_rev_pro(unsigned char *cmd);
 
 _Bool OneNET_DevLink(void);
-
 uint8_t OneNET_SendData(void);
 void OneNET_SendCmd(void);
 void OneNET_RevPro(unsigned char *cmd);

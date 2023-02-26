@@ -1,4 +1,5 @@
 {
+    "C_Cpp.vcFormat.indent.caseContents": true,
     "files.associations": {
         "*.c": "c",
         "*.md": "markdown",
@@ -40,6 +41,8 @@
         "esp8266.h": "c",
         "bsp_uart.h": "c",
         "bsp_esp8266_test.h": "c",
-        "mqttkit.h": "c"
+        "mqttkit.h": "c",
+        "dht11.h": "c",
+        "onenet.h": "c"
     }
 }

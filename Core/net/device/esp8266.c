@@ -91,6 +91,7 @@ void Esp8266_ObjecInit(Esp8266Object_t *esp,
 
 	uint8_t times = 0;
 	printf("Configure ESP8266 Mode.\r\n");
+	clearReciveBuffer(esp);
 	// 设置工作模式 1：station模式   2：AP模式  3：兼容 AP+station模式
 	while (Esp8266_sendCommmand(esp, cwModeCmd[esp->cwMode], "OK", 50) == Esp8266_TxFial)
 	{
@@ -109,6 +110,7 @@ void Esp8266_ObjecInit(Esp8266Object_t *esp,
 	esp->Delayms(3000); // 延时3S等待重启成功
 
 	printf("ESP9266 is restarted.\r\n");
+	clearReciveBuffer(esp);
 	if (esp->cwMode == Esp8266_StationMode)
 	{
 		sprintf(cwjap, "AT+CWJAP_CUR=\"%s\",\"%s\"\r\n", wifiName, wifiPassword);

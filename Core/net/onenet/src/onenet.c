@@ -45,16 +45,19 @@
 
 #define DEVID "1043147880" // 设备ID
 
-OneNet_t G_oneNet;
+onenet_t G_oneNet;
 
 // 当正式环境注册码达到16个字符则启用自动创建功能，否则不启用
 // 如果要采用自动创建设备的方式，apikey必须为master-key，且正式环境注册码有效
-// ONETNET_INFO G_oneNet = {"1043147880", "m=cXh=O8EFYps6fn7rKDcVZZrVU=",
-// 							"570783", "2018101045",
-// 							"",
-// 							"183.230.40.39", "6002",
-// 							NULL, NULL, 0, 7, NULL, 0,
-// 							0, 0, 1, 0, 0, 0, 0, 0, 0};
+
+onenet_t G_oneNet = {.web_info = {"183.230.40.39", "6002", 7},
+					 .user_info = {"1043147880", "m=cXh=O8EFYps6fn7rKDcVZZrVU=",
+								   "570783", "2018101045",
+								   ""},
+					 .file_info = {NULL, NULL, 0},
+					 .SR = {0, 0, 1, 0, 0, 0, 0, 0, 0},
+					 .send_data = 0,
+					 .cmd_ptr = NULL};
 
 void OneNet_Init(char *device_id,
 				 char *api_key,
@@ -81,55 +84,487 @@ void OneNet_Init(char *device_id,
 	memmove(product_id, G_oneNet.user_info.pro_id, strlen(product_id));
 }
 
-// void OneNet_DevLink(const char *devid, const char *proid, const char *auth_info)
-//{
+uint8_t onenet_dev_link(const char *devid, const char *proid, const char *auth_info)
+{
+	/* 协议帧 */
+	uint8_t time_out = 200;
+	MQTT_PACKET_STRUCTURE mqtt_packet = {NULL, 0, 0, 0};
 
-//	MQTT_PACKET_STRUCTURE mqtt_packet = {NULL, 0, 0, 0}; // 协议包
+	printf("OneNET_DevLink\r\n"
+		   "PROID: %s,	AUIF: %s,	DEVID:%s\r\n",
+		   proid, auth_info, devid);
 
-//	unsigned char time_out = 200;
+	if (MQTT_PacketConnect(proid, auth_info, devid, 256, 0, MQTT_QOS_LEVEL0, NULL, NULL, 0, &mqtt_packet))
+	{
+		esp8266.SendData(mqtt_packet._data, mqtt_packet._len);
 
-//	printf("OneNET_DevLink\r\nPROID: %s,	AUIF: %s,	DEVID:%s\r\n", proid, auth_info, devid);
+		MQTT_DeleteBuffer(&mqtt_packet);
 
-//	if (MQTT_PacketConnect(proid, auth_info, devid, 256, 0, MQTT_QOS_LEVEL0, NULL, NULL, 0, &mqtt_packet) == 0)
-//	{
+		while (--time_out)
+		{
+			if (G_oneNet.cmd_ptr != NULL)
+			{
+				onenet_rev_pro(G_oneNet.cmd_ptr);
+				G_oneNet.cmd_ptr = NULL;
+				break;
+			}
+			delay_ms(10);
+		}
+	}
+	else
+		printf("WARN:	MQTT_PacketConnect Failed\r\n");
+	if (G_oneNet.SR.bit.net_work) // 如果接入成功
+	{
+		G_oneNet.SR.bit.err_count = 0;
+		return 0;
+	}
 
-//		esp8266.SendData(mqtt_packet._data, mqtt_packet._len); // 上传平台
-//		// NET_DEVICE_AddDataSendList(mqtt_packet._data, mqtt_packet._len, 1);
+	if (++G_oneNet.SR.bit.err_count >= 5) // 如果超过设定次数后，还未接入平台
+	{
+		G_oneNet.SR.bit.net_work = 0;
+		G_oneNet.SR.bit.err_count = 0;
 
-//		MQTT_DeleteBuffer(&mqtt_packet); // 删包
+		G_oneNet.SR.bit.err_check = 1;
+		
+	}return 1;
+}
 
-//		while (--time_out)
-//		{
-//			if (G_oneNet.cmd_ptr != NULL)
-//			{
-//				OneNET_RevPro(G_oneNet.cmd_ptr);
+/**
+ * @brief 		心跳检测
+ *
+ * @retval 		SEND_TYPE_OK-发送成功
+ * 				SEND_TYPE_DATA-需要重送
+ */
+unsigned char onenet_send_heart(void)
+{
 
-//				G_oneNet.cmd_ptr = NULL;
+	MQTT_PACKET_STRUCTURE mqtt_packet = {NULL, 0, 0, 0}; // 协议包
 
-//				break;
-//			}
+	if (!G_oneNet.SR.bit.net_work) // 如果网络为连接
+		return SEND_TYPE_HEART;
 
-//			Delay_ms(10);
-//		}
-//	}
-//	else
-//		printf("WARN:	MQTT_PacketConnect Failed\r\n");
+	if (MQTT_PacketPing(&mqtt_packet))
+		return SEND_TYPE_HEART;
 
-//	if (G_oneNet.SR.bit.net_work) // 如果接入成功
-//	{
-//		G_oneNet.SR.bit.err_count = 0;
-//	}
-//	else
-//	{
-//		if (++G_oneNet.SR.bit.err_count >= 5) // 如果超过设定次数后，还未接入平台
-//		{
-//			G_oneNet.SR.bit.net_work = 0;
-//			G_oneNet.SR.bit.err_count = 0;
+	G_oneNet.SR.bit.heart_beat = 0;
 
-//			G_oneNet.SR.bit.err_check = 1;
-//		}
-//	}
-//}
+	printf("%s\r\n", mqtt_packet._data);
+
+	// NET_DEVICE_SendData(mqtt_packet._data, mqtt_packet._len);			//向平台上传心跳请求
+	esp8266.SendData(mqtt_packet._data, mqtt_packet._len); // 加入链表
+
+	MQTT_DeleteBuffer(&mqtt_packet); // 删包
+
+	return SEND_TYPE_OK;
+}
+
+#if 0
+/**
+ * @brief 				暂时废弃
+ * 
+ * @param devid 
+ * @param apikey 
+ * @param streamArray 
+ * @param streamArrayCnt 
+ * @retval 
+ */
+unsigned char onenet_send_data(char *devid, char *apikey, DATA_STREAM *streamArray, unsigned short streamArrayCnt)
+{
+	uint8_t type = 3;
+	MQTT_PACKET_STRUCTURE mqtt_packet = {NULL, 0, 0, 0}; // 协议包
+
+	unsigned char status = SEND_TYPE_OK;
+	short body_len = 0;
+
+	if (!G_oneNet.SR.bit.net_work)
+		return SEND_TYPE_DATA;
+
+	printf("Tips:	OneNET_SendData-MQTT_TYPE%d\r\n", type);
+
+	body_len = DSTREAM_GetDataStream_Body_Measure(type, streamArray, streamArrayCnt, 0); // 获取当前需要发送的数据流的总长度
+	if (body_len > 0)
+	{
+		if (MQTT_PacketSaveData(devid, body_len, NULL, (uint8)type, &mqtt_packet) == 0)
+		{
+			body_len = DSTREAM_GetDataStream_Body(type, streamArray, streamArrayCnt, mqtt_packet._data, mqtt_packet._size, mqtt_packet._len);
+
+			if (body_len > 0)
+			{
+				mqtt_packet._len += body_len;
+				printf("Send %d Bytes\r\n", mqtt_packet._len);
+
+				printf("%s\r\n", mqtt_packet._data);
+
+				// NET_DEVICE_SendData(mqtt_packet._data, mqtt_packet._len);						//上传数据到平台
+				esp8266.SendData(mqtt_packet._data, mqtt_packet._len); // 加入链表
+			}
+			else
+				printf("WARN:	DSTREAM_GetDataStream_Body Failed\r\n");
+
+			MQTT_DeleteBuffer(&mqtt_packet); // 删包
+		}
+		else
+			printf("WARN:	MQTT_NewBuffer Failed\r\n");
+	}
+	else if (body_len < 0)
+		status = SEND_TYPE_OK;
+	else
+		status = SEND_TYPE_DATA;
+
+	return status;
+}
+#endif
+
+/**
+ * @brief 	发送心跳后的心跳检测
+ *
+ * @retval 	0-成功
+ * 			1-等待
+ * @note
+ * 			基于调用时基，runCount每隔此函数调用一次的时间自增
+ * 			达到设定上限检测心跳标志位是否就绪
+ * 			上限时间可以不用太精确
+ */
+_Bool onenet_check_heart(void)
+{
+
+	static unsigned char runCount = 0;
+
+	if (!G_oneNet.SR.bit.net_work)
+		return 1;
+
+	if (G_oneNet.SR.bit.heart_beat == 1)
+	{
+		runCount = 0;
+		G_oneNet.SR.bit.err_count = 0;
+
+		return 0;
+	}
+
+	if (++runCount >= 40)
+	{
+		runCount = 0;
+
+		printf("HeartBeat TimeOut: %d\r\n", G_oneNet.SR.bit.err_count);
+		G_oneNet.send_data |= SEND_TYPE_HEART; // 发送心跳请求
+
+		if (++G_oneNet.SR.bit.err_count >= 3)
+		{
+			G_oneNet.SR.bit.err_count = 0;
+
+			G_oneNet.SR.bit.err_check = 1;
+		}
+	}
+
+	return 1;
+}
+
+/**
+ * @brief 			发布消息
+ *
+ * @param topic 	发布的主题
+ * @param msg 		消息内容
+ * @retval 			SEND_TYPE_OK:		成功
+ * 					SEND_TYPE_PUBLISH:	需要重送
+ */
+unsigned char onenet_publish(const char *topic, const char *msg)
+{
+
+	MQTT_PACKET_STRUCTURE mqtt_packet = {NULL, 0, 0, 0}; // 协议包
+
+	if (!G_oneNet.SR.bit.net_work)
+		return SEND_TYPE_PUBLISH;
+
+	printf("Publish Topic: %s, Msg: %s\r\n", topic, msg);
+
+	if (MQTT_PacketPublish(MQTT_PUBLISH_ID, topic, msg, strlen(msg), MQTT_QOS_LEVEL2, 0, 1, &mqtt_packet) == 0)
+	{
+		printf("%s\r\n", mqtt_packet._data);
+
+		// NET_DEVICE_SendData(mqtt_packet._data, mqtt_packet._len);				//向平台发送订阅请求
+		esp8266.SendData(mqtt_packet._data, mqtt_packet._len); // 加入链表
+
+		MQTT_DeleteBuffer(&mqtt_packet); // 删包
+	}
+
+	return SEND_TYPE_OK;
+}
+
+#if 0
+void OneNET_CmdHandle(void)
+{
+
+	unsigned char *dataPtr = NULL, *ipdPtr = NULL; // 数据指针
+
+	dataPtr = NET_DEVICE_Read(); // 等待数据
+
+	if (dataPtr != NULL) // 数据有效
+	{
+		ipdPtr = NET_DEVICE_GetIPD(dataPtr); // 检查是否是平台数据
+		if (ipdPtr != NULL)
+		{
+			net_device_info.send_count = 0;
+
+			if (onenet_info.connect_ip)
+				onenet_info.cmd_ptr = ipdPtr; // 集中处理
+
+			net_device_info.cmd_ipd = (char *)ipdPtr;
+		}
+		else
+		{
+			if (strstr((char *)dataPtr, "SEND OK") != NULL)
+			{
+				net_device_info.send_count = 0;
+			}
+			else if (strstr((char *)dataPtr, "CLOSE") != NULL && onenet_info.net_work)
+			{
+				UsartPrintf(USART_DEBUG, "WARN:	连接断开，准备重连\r\n");
+
+				onenet_info.err_check = 1;
+			}
+			else
+				NET_DEVICE_CmdHandle((char *)dataPtr);
+		}
+	}
+}
+#endif
+/**
+ * @brief 		平台返回数据检测
+ *
+ * @param cmd 	平台返回的数据
+ */
+void onenet_rev_pro(unsigned char *cmd)
+{
+
+	MQTT_PACKET_STRUCTURE mqtt_packet = {NULL, 0, 0, 0}; // 协议包
+
+	char *req_payload = NULL;
+	char *cmdid_topic = NULL;
+
+	unsigned short topic_len = 0;
+	unsigned short req_len = 0;
+
+	unsigned char qos = 0;
+	static unsigned short pkt_id = 0;
+
+	printf("%s\r\n", cmd);
+
+	switch (MQTT_UnPacketRecv(cmd))
+	{
+	case MQTT_PKT_CONNACK:
+
+		switch (MQTT_UnPacketConnectAck(cmd))
+		{
+		case 0:
+			printf("Tips:	连接成功\r\n");
+			G_oneNet.SR.bit.net_work = 1;
+			break;
+
+		case 1:
+			printf("WARN:	Connection failed: protocol error!\r\n");
+			break;
+		case 2:
+			printf("WARN:	Connection failed: invalid clientid!\r\n");
+			break;
+		case 3:
+			printf("WARN:	Connection failed: server failed!\r\n");
+			break;
+		case 4:
+			printf("WARN:	Connection failed: wrong username or password!\r\n");
+			break;
+		case 5:
+			printf("WARN:	Connection failed: illegal link (such as illegal token)!\r\n");
+			break;
+		default:
+			printf("ERR:	Connection failed: unknown error!\r\n");
+			break;
+		}
+
+		break;
+
+	case MQTT_PKT_PINGRESP:
+
+		printf("Tips:	HeartBeat OK\r\n");
+		G_oneNet.SR.bit.heart_beat = 1;
+
+		break;
+
+	case MQTT_PKT_CMD: // 命令下发
+
+		if (MQTT_UnPacketCmd(cmd, &cmdid_topic, &req_payload, &req_len) == 0) // 解出topic和消息体
+		{
+			printf("cmdid: %s, req: %s, req_len: %d\r\n", cmdid_topic, req_payload, req_len);
+
+			// 执行命令回调------------------------------------------------------------
+			// CALLBACK_Execute(req_payload);
+
+			if (MQTT_PacketCmdResp(cmdid_topic, req_payload, &mqtt_packet) == 0) // 命令回复组包
+			{
+				printf("Tips:	Send CmdResp\r\n");
+
+				// 解析数据
+				printf("%s", mqtt_packet._data);
+
+				// NET_DEVICE_SendData(mqtt_packet._data, mqtt_packet._len);			//回复命令
+				// NET_DEVICE_AddDataSendList(mqtt_packet._data, mqtt_packet._len, 1); // 加入链表
+				MQTT_DeleteBuffer(&mqtt_packet); // 删包
+			}
+
+			MQTT_FreeBuffer(cmdid_topic);
+			MQTT_FreeBuffer(req_payload);
+			G_oneNet.send_data |= SEND_TYPE_DATA;
+		}
+
+		break;
+
+	case MQTT_PKT_PUBLISH: // 接收的Publish消息
+
+		if (MQTT_UnPacketPublish(cmd, &cmdid_topic, &topic_len, &req_payload, &req_len, &qos, &pkt_id) == 0)
+		{
+			printf("topic: %s, topic_len: %d, payload: %s, payload_len: %d\r\n",
+				   cmdid_topic, topic_len, req_payload, req_len);
+
+			// 执行命令回调------------------------------------------------------------
+			// CALLBACK_Execute(req_payload);
+
+			switch (qos)
+			{
+			case 1: // 收到publish的qos为1，设备需要回复Ack
+
+				if (MQTT_PacketPublishAck(pkt_id, &mqtt_packet) == 0)
+				{
+					printf("Tips:	Send PublishAck\r\n");
+
+					// 解析数据
+					printf("%s\r\n", mqtt_packet._data);
+
+					// NET_DEVICE_SendData(mqtt_packet._data, mqtt_packet._len);
+					// NET_DEVICE_AddDataSendList(mqtt_packet._data, mqtt_packet._len, 1); // 加入链表
+					MQTT_DeleteBuffer(&mqtt_packet);
+				}
+
+				break;
+
+			case 2: // 收到publish的qos为2，设备先回复Rec
+					// 平台回复Rel，设备再回复Comp
+				if (MQTT_PacketPublishRec(pkt_id, &mqtt_packet) == 0)
+				{
+					printf("Tips:	Send PublishRec\r\n");
+
+					// 解析数据
+					printf("%s\r\n", mqtt_packet._data);
+
+					// NET_DEVICE_SendData(mqtt_packet._data, mqtt_packet._len);
+					// NET_DEVICE_AddDataSendList(mqtt_packet._data, mqtt_packet._len, 1); // 加入链表
+					MQTT_DeleteBuffer(&mqtt_packet);
+				}
+
+				break;
+
+			default:
+				break;
+			}
+
+			MQTT_FreeBuffer(cmdid_topic);
+			MQTT_FreeBuffer(req_payload);
+			G_oneNet.send_data |= SEND_TYPE_DATA;
+		}
+
+		break;
+
+	case MQTT_PKT_PUBACK: // 发送Publish消息，平台回复的Ack
+
+		if (MQTT_UnPacketPublishAck(cmd) == 0)
+		{
+			printf("Tips:	MQTT Publish Send OK\r\n");
+
+#if (LBS_WIFI_EN == 1 || LBS_EN == 1)
+			if (
+#if (LBS_WIFI_EN == 1)
+				lbs_wifi_info.lbs_wifi_ok == 1 &&
+#elif (LBS_EN == 1)
+				lbs_info.lbs_ok == 1 &&
+#endif
+				!onenet_info.lbs && onenet_info.lbs_count < 4) // 如果获取到了基站信息 且 未获取到位置坐标 且 获取次数小于一定值
+			{
+				onenet_info.net_work = 0; // 则重新获取一下位置信息
+				get_location_flag = 1;
+			}
+#endif
+		}
+
+		break;
+
+	case MQTT_PKT_PUBREC: // 发送Publish消息，平台回复的Rec，设备需回复Rel消息
+
+		if (MQTT_UnPacketPublishRec(cmd) == 0)
+		{
+			printf("Tips:	Rev PublishRec\r\n");
+			if (MQTT_PacketPublishRel(MQTT_PUBLISH_ID, &mqtt_packet) == 0)
+			{
+				printf("Tips:	Send PublishRel\r\n");
+
+				printf("%s\r\n", mqtt_packet._data);
+
+				// NET_DEVICE_SendData(mqtt_packet._data, mqtt_packet._len);
+				esp8266.SendData(mqtt_packet._data, mqtt_packet._len); // 直接发送
+				MQTT_DeleteBuffer(&mqtt_packet);
+			}
+		}
+
+		break;
+
+	case MQTT_PKT_PUBREL: // 收到Publish消息，设备回复Rec后，平台回复的Rel，设备需再回复Comp
+
+		if (MQTT_UnPacketPublishRel(cmd, pkt_id) == 0)
+		{
+			printf("Tips:	Rev PublishRel\r\n");
+			if (MQTT_PacketPublishComp(pkt_id, &mqtt_packet) == 0)
+			{
+				printf("Tips:	Send PublishComp\r\n");
+
+				printf("%s\r\n", mqtt_packet._data);
+
+				// NET_DEVICE_SendData(mqtt_packet._data, mqtt_packet._len);
+				esp8266.SendData(mqtt_packet._data, mqtt_packet._len); // 加入链表
+				MQTT_DeleteBuffer(&mqtt_packet);
+			}
+		}
+
+		break;
+
+	case MQTT_PKT_PUBCOMP: // 发送Publish消息，平台返回Rec，设备回复Rel，平台再返回的Comp
+
+		if (MQTT_UnPacketPublishComp(cmd) == 0)
+		{
+			printf("Tips:	Rev PublishComp\r\n");
+		}
+
+		break;
+
+	case MQTT_PKT_SUBACK: // 发送Subscribe消息的Ack
+
+		if (MQTT_UnPacketSubscribe(cmd) == 0)
+			printf("Tips:	MQTT Subscribe OK\r\n");
+		else
+			printf("Tips:	MQTT Subscribe Err\r\n");
+
+		break;
+
+	case MQTT_PKT_UNSUBACK: // 发送UnSubscribe消息的Ack
+
+		if (MQTT_UnPacketUnSubscribe(cmd) == 0)
+			printf("Tips:	MQTT UnSubscribe OK\r\n");
+		else
+			printf("Tips:	MQTT UnSubscribe Err\r\n");
+
+		break;
+
+	default:
+
+		break;
+	}
+}
 
 /**
  * @brief 			获取平台返回的数据
@@ -262,6 +697,41 @@ unsigned char OneNET_FillBuf(char *buf)
 	return strlen(buf);
 }
 
+/**
+ * @brief 	检测 OneNET_SendData 后云端是否应答
+ *
+ * @retval 	0: 应答
+ * 			1: 未应答
+ */
+static uint8_t get_rev_result(void)
+{
+
+	/* 检测是否接受完毕 */
+	uint16_t rev_cnt = 0;
+	while (Esp8266_RxFinish != isRecieveFinished(&esp8266))
+	{
+		delay_ms(10);
+		if (rev_cnt++ > 100)
+		{
+			/* 输出错误数据*/
+			/*			printf("%d%d%d%d\r\n", esp8266.rxBuffer.queue[0],
+							   esp8266.rxBuffer.queue[1],
+							   esp8266.rxBuffer.queue[2],
+							   esp8266.rxBuffer.queue[3]);
+							   */
+			return 1;
+		}
+	}
+
+	/* 校验数据是否发送成功 */
+	if (esp8266.rxBuffer.queue[0] == '@')
+	{
+		return 0;
+	}
+
+	return 1;
+}
+
 //==========================================================
 //	函数名称：	OneNET_SendData
 //
@@ -308,25 +778,7 @@ uint8_t OneNET_SendData(void)
 			printf("WARN:	MQTT_NewBuffer Failed\r\n");
 	}
 
-	/* 检测是否接受完毕 */
-	uint16_t rev_cnt = 0;
-	while (Esp8266_RxFinish != isRecieveFinished(&esp8266))
-	{
-		delay_ms(10);
-		if (rev_cnt++ > 100)
-		{
-			/* 输出错误数据*/
-			printf("%d%d%d%d\r\n", esp8266.rxBuffer.queue[0],
-				   esp8266.rxBuffer.queue[1],
-				   esp8266.rxBuffer.queue[2],
-				   esp8266.rxBuffer.queue[3]);
-			err_cnt++;
-			return 1;
-		}
-	}
-
-	/* 校验数据是否发送成功 */
-	if (esp8266.rxBuffer.queue[0] == '@')
+	if (!get_rev_result())
 	{
 		err_cnt = 0;
 		return 0;
@@ -340,12 +792,14 @@ uint8_t OneNET_SendData(void)
 		while (!OneNET_DevLink())
 		{
 			err_cnt++;
-			// 重启, 超过30次重启, 后期设置看门狗实现复位
-			if (err_cnt > 30)
+			// 重启, 超过30次复位8266
+			if (err_cnt > 15)
 			{
 				err_cnt = 0;
+				clearReciveBuffer(&esp8266);
 				esp8266Init();
 				OneNET_DevLink();
+				delay_ms(1000);
 			}
 		}
 		printf("ReConnect Server.\r\n");
