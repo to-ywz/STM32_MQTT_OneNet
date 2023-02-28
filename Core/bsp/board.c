@@ -12,14 +12,27 @@
 #include <stdio.h>
 #include "board.h"
 
+static sf_timer_t sftimer[2];
+
+static void timer_task_init(void);
+
 void board_init(void)
 {
-    uint8_t error = 1;
-
-    delay_Init();
+    systick_init();
     Led_Init();
+    timer_task_init();
     printf("board peripherals are initialized. by UART1\r\n");
-    // uart_sendString(&huart2, "board peripherals are initialized. by UART2\r\n");
+}
+
+static void timer1_task(void)
+{
+    Led_CheckMode();
+}
+
+static void timer_task_init(void)
+{
+    sf_timer_init(&sftimer[0], timer1_task, 50, 50);
+    sf_timer_start(&sftimer[0]);
 }
 
 // 寄存器版本
@@ -31,4 +44,15 @@ int fputc(int ch, FILE *f)
     USART1->DR = (uint8_t)ch;
     return ch;
 }
+
+/**
+ * @brief 系统复位函数
+ *
+ */
+void board_system_reset(void)
+{
+    __set_FAULTMASK(1); // 关闭所有中断
+    NVIC_SystemReset(); // 复位
+}
+
 //==================================================End=================================================

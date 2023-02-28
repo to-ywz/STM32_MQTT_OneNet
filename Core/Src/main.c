@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "spi.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -88,15 +89,17 @@ int main(void)
   MX_GPIO_Init();
   MX_SPI1_Init();
   MX_USART1_UART_Init();
+  MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
-	board_init();
+  board_init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
   while (1)
   {
-
+    sf_timer_loop();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -148,7 +151,13 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+void HAL_GPIO_EXTI_Callback(uint16_t pin)
+{
+  if (pin == KEY_Pin)
+  {
+    board_system_reset();
+  }
+}
 /* USER CODE END 4 */
 
 /**
