@@ -21,6 +21,9 @@ void board_init(void)
     systick_init();
     Led_Init();
     timer_task_init();
+    bsp_com_init(COM1);
+    bsp_uart_param_setup(USART1, 115200, UART_PARITY_NONE, UART_MODE_TX_RX);
+    com_buf_send(COM1, (uint8_t *)"ABCDEF.\r\n", 11);
     printf("board peripherals are initialized. by UART1\r\n");
 }
 
@@ -34,7 +37,6 @@ static void timer_task_init(void)
     sf_timer_init(&sftimer[0], timer1_task, 50, 50);
     sf_timer_start(&sftimer[0]);
 }
-
 
 /**
  * @brief 系统复位函数

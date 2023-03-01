@@ -1,0 +1,11 @@
+{
+    "explorer.autoReveal": false,
+    "files.associations": {
+        "*.c": "c",
+        "*.md": "markdown",
+        "*.html": "html",
+        "stm32f4xx_hal.h": "c",
+        "board.h": "c",
+        "stdio.h": "c"
+    }
+}
