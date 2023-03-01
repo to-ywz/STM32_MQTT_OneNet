@@ -24,7 +24,7 @@
 
 #define GET_PIN(pin) pin % GPIO_PRE_PIN  // 获取引脚号
 #define GET_PORT(pin) pin / GPIO_PRE_PIN // 获取端口号
-#define GET_GPIO_RCC(gpiox) (1 << GET_GPIO_EXTI(gpiox))
+#define GET_GPIO_RCC(gpiox) (1 << GET_PORT(gpiox))
 #define GET_GPIO_EXTI(gpiox) (((uint32_t)gpiox - AHB1PERIPH_BASE) / 0x0400)
 #define GET_EXTI_GPIO(port) ((GPIO_TypeDef *)(AHB1PERIPH_BASE + (port * 0x0400)))
 

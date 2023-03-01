@@ -52,7 +52,8 @@ static led_status_t getLedMode(uint8_t id);
 
 // 全局变量
 uint16_t Pin_List[LED_NUM] = {
-    89,
+    6,
+    7,
 };
 LedListObject_t G_led_list;
 

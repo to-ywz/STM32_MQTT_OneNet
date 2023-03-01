@@ -38,9 +38,5 @@ void sf_timer_stop(sf_timer_t *handle);
 void sf_timer_ticks(void);
 void sf_timer_loop(void);
 
-// 定时 服务函数
-void timer1_callback(void);
-void timer2_callback(void);
-
 #endif
 //========================================================== END OF FILE ==========================================================

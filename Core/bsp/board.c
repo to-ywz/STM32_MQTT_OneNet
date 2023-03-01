@@ -35,15 +35,6 @@ static void timer_task_init(void)
     sf_timer_start(&sftimer[0]);
 }
 
-// 寄存器版本
-int fputc(int ch, FILE *f)
-{
-    // 具体哪个串口可以更改USART1为其它串口
-    while ((USART1->SR & 0X40) == 0)
-        ; // 循环发送,直到发送完毕
-    USART1->DR = (uint8_t)ch;
-    return ch;
-}
 
 /**
  * @brief 系统复位函数

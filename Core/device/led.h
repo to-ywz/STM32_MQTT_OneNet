@@ -24,7 +24,7 @@ typedef enum Led_status
 #undef LED_MEMBERS
 
 // LED 数量
-#define LED_NUM 1
+#define LED_NUM 2
 
 typedef struct LEDObeject
 {
