@@ -13,5 +13,6 @@
 
 void board_init(void);
 void board_system_reset(void);
+uint8_t get_pinnum(char *str);
 
 #endif

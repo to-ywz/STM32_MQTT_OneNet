@@ -10,108 +10,61 @@
  * @copyright Copyright (c) 2023
  *
  */
-#include "board.h"
 #include <stdio.h>
-#include "main.h"
+#include <stdint.h>
+#include <stdarg.h>
+#include "bsp_gpio_def.h"
+#include "bsp_uart.h"
 
 #define UART_NUM 1
 
 #define ENABLE_INT() __set_PRIMASK(0)  /* 使能全局中断 */
 #define DISABLE_INT() __set_PRIMASK(1) /* 禁止全局中断 */
 
-/* 串口1的GPIO  PA9, PA10 */
-#define USART1_CLK_ENABLE() __HAL_RCC_USART1_CLK_ENABLE()
-
-#define USART1_TX_GPIO_CLK_ENABLE() __HAL_RCC_GPIOA_CLK_ENABLE()
-#define USART1_TX_GPIO_PORT GPIOA
-#define USART1_TX_PIN GPIO_PIN_9
-#define USART1_TX_AF GPIO_AF7_USART1
-
-#define USART1_RX_GPIO_CLK_ENABLE() __HAL_RCC_GPIOA_CLK_ENABLE()
-#define USART1_RX_GPIO_PORT GPIOA
-#define USART1_RX_PIN GPIO_PIN_10
-#define USART1_RX_AF GPIO_AF7_USART1
-
-/* 串口2的GPIO --- PD5 PD6  */
-#define USART2_CLK_ENABLE() __HAL_RCC_USART2_CLK_ENABLE()
-
-#define USART2_TX_GPIO_CLK_ENABLE() __HAL_RCC_GPIOD_CLK_ENABLE()
-#define USART2_TX_GPIO_PORT GPIOD
-#define USART2_TX_PIN GPIO_PIN_5
-#define USART2_TX_AF GPIO_AF7_USART2
-
-#define USART2_RX_GPIO_CLK_ENABLE() __HAL_RCC_GPIOD_CLK_ENABLE()
-#define USART2_RX_GPIO_PORT GPIOD
-#define USART2_RX_PIN GPIO_PIN_6
-#define USART2_RX_AF GPIO_AF7_USART2
+struct uart_hw_info
+{
+    uint8_t tx_pin; // 发送引脚
+    uint8_t rx_pin; // 接受引脚
+    IRQn_Type iqr;  // 中断源
+} uart_info[UART_NUM] = {
+    {9, 10, USART1_IRQn}
+    /*
+    {53, 54, USART2_IRQn},
+    {26, 27, USART3_IRQn},
+    {42, 43, UART4_IRQn},
+    {44, 50, UART5_IRQn},
+    {38, 39, USART6_IRQn},*/
+};
 
 /* 定义每个串口结构体变量 */
-#if UART1_FIFO_EN
 static UART_T uart_list[UART_NUM];
-static uint8_t g_TxBuf1[UART1_TX_BUF_SIZE]; /* 发送缓冲区 */
-static uint8_t g_RxBuf1[UART1_RX_BUF_SIZE]; /* 接收缓冲区 */
+#if UART1_FIFO_EN
+static uint8_t txbuf_arr[UART_NUM][UART_TX_BUF_SIZE]; /* 发送缓冲区 */
+static uint8_t rxbuf_arr[UART_NUM][UART_RX_BUF_SIZE]; /* 接收缓冲区 */
 #endif
 
 #if UART2_FIFO_EN
-static UART_T g_tUart2;
-static uint8_t g_TxBuf2[UART2_TX_BUF_SIZE]; /* 发送缓冲区 */
-static uint8_t g_RxBuf2[UART2_RX_BUF_SIZE]; /* 接收缓冲区 */
+static uint8_t txBuf2[UART2_TX_BUF_SIZE]; /* 发送缓冲区 */
+static uint8_t rxBuf2[UART2_RX_BUF_SIZE]; /* 接收缓冲区 */
 #endif
 
 static USART_TypeDef *usart_list[] = {
     USART1, USART2, USART3, UART4, UART5, USART6};
 
-/**
- * @brief   初始化串口逻辑
- *
- */
-static void uartvarinit(COM_PORT_E prot)
-{
-#if UART1_FIFO_EN
-    uart_list[prot].uart = USART1;                   /* STM32 串口设备 */
-    uart_list[prot].ptxbuf = g_TxBuf1;               /* 发送缓冲区指针 */
-    uart_list[prot].prxbuf = g_RxBuf1;               /* 接收缓冲区指针 */
-    uart_list[prot].ustxbufsize = UART1_TX_BUF_SIZE; /* 发送缓冲区大小 */
-    uart_list[prot].usRxbufsize = UART1_RX_BUF_SIZE; /* 接收缓冲区大小 */
-    uart_list[prot].tx_write = 0;                    /* 发送FIFO写索引 */
-    uart_list[prot].tx_read = 0;                     /* 发送FIFO读索引 */
-    uart_list[prot].rx_write = 0;                    /* 接收FIFO写索引 */
-    uart_list[prot].rx_read = 0;                     /* 接收FIFO读索引 */
-    uart_list[prot].rx_count = 0;                    /* 接收到的新数据个数 */
-    uart_list[prot].tx_count = 0;                    /* 待发送的数据个数 */
-    uart_list[prot].before_send = 0;                 /* 发送数据前的回调函数 */
-    uart_list[prot].over_send = 0;                   /* 发送完毕后的回调函数 */
-    uart_list[prot].new_recive = 0;                  /* 接收到新数据后的回调函数 */
-    uart_list[prot].sending = 0;                     /* 正在发送中标志 */
-#endif
-#if UART2_FIFO_EN
-    g_tUart2.uart = USART2;                   /* STM32 串口设备 */
-    g_tUart2.ptxbuf = g_TxBuf2;               /* 发送缓冲区指针 */
-    g_tUart2.prxbuf = g_RxBuf2;               /* 接收缓冲区指针 */
-    g_tUart2.ustxbufsize = UART2_TX_BUF_SIZE; /* 发送缓冲区大小 */
-    g_tUart2.usRxbufsize = UART2_RX_BUF_SIZE; /* 接收缓冲区大小 */
-    g_tUart2.tx_write = 0;                    /* 发送FIFO写索引 */
-    g_tUart2.tx_read = 0;                     /* 发送FIFO读索引 */
-    g_tUart2.rx_write = 0;                    /* 接收FIFO写索引 */
-    g_tUart2.rx_read = 0;                     /* 接收FIFO读索引 */
-    g_tUart2.rx_count = 0;                    /* 接收到的新数据个数 */
-    g_tUart2.tx_count = 0;                    /* 待发送的数据个数 */
-    g_tUart2.before_send = 0;                 /* 发送数据前的回调函数 */
-    g_tUart2.over_send = 0;                   /* 发送完毕后的回调函数 */
-    g_tUart2.new_recive = 0;                  /* 接收到新数据后的回调函数 */
-    g_tUart2.sending = 0;                     /* 正在发送中标志 */
-#endif
-}
-
+static void uart_hard_init(COM_PORT_E com);
+static void uar_object_init(COM_PORT_E prot);
+static USART_TypeDef *com_to_usart(COM_PORT_E com);
+static UART_T *com_to_uart(COM_PORT_E com);
+static char *itoa(int value, char *string, int radix);
 /**
  * @brief           配置串口的硬件参数
  *
- * @param Instance  串口实体
- * @param BaudRate  波特率
- * @param Parity    校验类型
- * @param Mode      串口工作模式
+ * @param com      串口编号
+ * @param baudrate  波特率
+ * @param parity    校验类型
+ * @param mode      串口工作模式
  */
-void bsp_uart_param_setup(USART_TypeDef *Instance, uint32_t BaudRate, uint32_t Parity, uint32_t Mode)
+void com_param_setup(COM_PORT_E com, uint32_t baudrate, uint32_t parity, uint32_t mode)
 {
     UART_HandleTypeDef UartHandle;
 
@@ -126,17 +79,84 @@ void bsp_uart_param_setup(USART_TypeDef *Instance, uint32_t BaudRate, uint32_t P
      * - 硬件流控制关闭 (RTS and CTS signals)
      * */
 
-    UartHandle.Instance = Instance;
+    UartHandle.Instance = com_to_usart(com);
 
-    UartHandle.Init.BaudRate = BaudRate;
+    UartHandle.Init.BaudRate = baudrate;
     UartHandle.Init.WordLength = UART_WORDLENGTH_8B;
     UartHandle.Init.StopBits = UART_STOPBITS_1;
-    UartHandle.Init.Parity = Parity;
+    UartHandle.Init.Parity = parity;
     UartHandle.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-    UartHandle.Init.Mode = Mode;
+    UartHandle.Init.Mode = mode;
     UartHandle.Init.OverSampling = UART_OVERSAMPLING_16;
     if (HAL_UART_Init(&UartHandle) != HAL_OK)
     {
+    }
+}
+
+/**
+ * @brief 串口初始化
+ *
+ */
+void bsp_com_init(COM_PORT_E com)
+{
+
+    uar_object_init(com); /* 必须先初始化全局变量,再配置硬件 */
+    uart_hard_init(com);  /* 配置串口的硬件参数(波特率等) */
+}
+
+/**
+ * @brief   初始化串口逻辑
+ *
+ */
+static void uar_object_init(COM_PORT_E com)
+{
+    uart_list[com].uart = USART1;                    /* STM32 串口设备 */
+    uart_list[com].txbuf.buf = txbuf_arr[com];       /* 发送缓冲区指针 */
+    uart_list[com].rxbuf.buf = rxbuf_arr[com];       /* 接收缓冲区指针 */
+    uart_list[com].txbuf.bufsize = UART_TX_BUF_SIZE; /* 发送缓冲区大小 */
+    uart_list[com].rxbuf.bufsize = UART_RX_BUF_SIZE; /* 接收缓冲区大小 */
+    uart_list[com].txbuf.write = 0;                  /* 发送FIFO写索引 */
+    uart_list[com].txbuf.read = 0;                   /* 发送FIFO读索引 */
+    uart_list[com].rxbuf.write = 0;                  /* 接收FIFO写索引 */
+    uart_list[com].rxbuf.read = 0;                   /* 接收FIFO读索引 */
+    uart_list[com].txbuf.count = 0;                  /* 待发送的数据个数 */
+    uart_list[com].rxbuf.count = 0;                  /* 接收到的新数据个数 */
+    uart_list[com].before_send = 0;                  /* 发送数据前的回调函数 */
+    uart_list[com].over_send = 0;                    /* 发送完毕后的回调函数 */
+    uart_list[com].new_recive = 0;                   /* 接收到新数据后的回调函数 */
+    uart_list[com].sending = 0;                      /* 正在发送中标志 */
+}
+
+/**
+ * @brief       使能 UART 时钟
+ *
+ * @param com  端口
+ */
+static inline void uart_clk_enable(COM_PORT_E com)
+{
+    switch (com)
+    {
+    case COM1:
+        __HAL_RCC_USART1_CLK_ENABLE();
+        break;
+    case COM2:
+        __HAL_RCC_USART2_CLK_ENABLE();
+        break;
+    case COM3:
+        __HAL_RCC_USART3_CLK_ENABLE();
+        break;
+    case COM4:
+        __HAL_RCC_UART4_CLK_ENABLE();
+        break;
+    case COM5:
+        __HAL_RCC_UART5_CLK_ENABLE();
+        break;
+    case COM6:
+        __HAL_RCC_USART6_CLK_ENABLE();
+        break;
+
+    default:
+        break;
     }
 }
 
@@ -145,42 +165,50 @@ void bsp_uart_param_setup(USART_TypeDef *Instance, uint32_t BaudRate, uint32_t P
  *
  * @note    串口参数通过bsp_setuartparam来配置
  */
-static void initharduart(void)
+static void uart_hard_init(COM_PORT_E com)
 {
-    GPIO_InitTypeDef GPIO_InitStruct;
+    uint16_t tx_pin = 0, rx_pin = 0;
+    uint8_t port_num = 0;
+    GPIO_TypeDef *port = 0;
+    GPIO_InitTypeDef gpio_init_structure = {};
 
-#if UART1_FIFO_EN /* 串口1 */
+    tx_pin = 1U << GET_PIN(uart_info[com].tx_pin);
+    port_num = GET_PORT(uart_info[com].tx_pin);
+    port = (GPIO_TypeDef *)(GPIOA_BASE + port_num * 0x400);
+
     /* 使能 GPIO TX/RX 时钟 */
-    USART1_TX_GPIO_CLK_ENABLE();
-    USART1_RX_GPIO_CLK_ENABLE();
+    RCC->AHB1ENR |= 1 << port_num;
 
     /* 使能 USARTx 时钟 */
-    USART1_CLK_ENABLE();
+    uart_clk_enable(com);
 
     /* 配置TX引脚 */
-    GPIO_InitStruct.Pin = USART1_TX_PIN;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_PULLUP;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = USART1_TX_AF;
-    HAL_GPIO_Init(USART1_TX_GPIO_PORT, &GPIO_InitStruct);
+    gpio_init_structure.Pin = tx_pin;
+    gpio_init_structure.Mode = GPIO_MODE_AF_PP;
+    gpio_init_structure.Pull = GPIO_PULLUP;
+    gpio_init_structure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    gpio_init_structure.Alternate = (com < 3 ? 0x07 : 0x08);
+    HAL_GPIO_Init(port, &gpio_init_structure);
 
     /* 配置RX引脚 */
-    GPIO_InitStruct.Pin = USART1_RX_PIN;
-    GPIO_InitStruct.Alternate = USART1_RX_AF;
-    HAL_GPIO_Init(USART1_RX_GPIO_PORT, &GPIO_InitStruct);
+    tx_pin = 1U << GET_PIN(uart_info[com].rx_pin);
+    gpio_init_structure.Pin = rx_pin;
+    HAL_GPIO_Init(port, &gpio_init_structure);
 
     /* 配置NVIC the NVIC for UART */
-    HAL_NVIC_SetPriority(USART1_IRQn, 0, 1);
-    HAL_NVIC_EnableIRQ(USART1_IRQn);
+    HAL_NVIC_SetPriority(uart_info[com].iqr, 0, 1);
+    HAL_NVIC_EnableIRQ(uart_info[com].iqr);
 
     /* 配置波特率、奇偶校验 */
-    bsp_uart_param_setup(USART1, UART1_BAUD, UART_PARITY_NONE, UART_MODE_TX_RX);
+    com_param_setup(com, UART_BAUD, UART_PARITY_NONE, UART_MODE_TX_RX);
 
-    CLEAR_BIT(USART1->SR, USART_SR_TC);   /* 清除TC发送完成标志 */
-    CLEAR_BIT(USART1->SR, USART_SR_RXNE); /* 清除RXNE接收标志 */
+    CLEAR_BIT(com_to_usart(com)->SR, USART_SR_TC);   /* 清除TC发送完成标志 */
+    CLEAR_BIT(com_to_usart(com)->SR, USART_SR_RXNE); /* 清除RXNE接收标志 */
     // USART_CR1_PEIE | USART_CR1_RXNEIE
-    SET_BIT(USART1->CR1, USART_CR1_RXNEIE); /* 使能PE. RX接受中断 */
+    SET_BIT(com_to_usart(com)->CR1, USART_CR1_RXNEIE); /* 使能PE. RX接受中断 */
+
+#if UART1_FIFO_EN /* 串口1 */
+
 #endif
 #if UART2_FIFO_EN /* 串口2 */
     /* 使能 GPIO TX/RX 时钟 */
@@ -218,97 +246,86 @@ static void initharduart(void)
 }
 
 /**
- * @brief 串口初始化
- *
- */
-void bsp_com_init(COM_PORT_E port)
-{
-    uartvarinit(port); /* 必须先初始化全局变量,再配置硬件 */
-
-    initharduart(); /* 配置串口的硬件参数(波特率等) */
-}
-
-/**
  * @brief           将COM端口号转换为UART指针
  *
- * @param port      端口号(COM1 - COM6)
+ * @param com      端口号(COM1 - COM6)
  * @retval          uart指针
  */
-UART_T *com_to_uart(COM_PORT_E port)
+static inline UART_T *com_to_uart(COM_PORT_E com)
 {
-    return &(uart_list[port]);
+    return &(uart_list[com]);
 }
 
 /**
  * @brief           将COM端口号转换为 USART_TypeDef* USARTx
  *
- * @param port      COM编号
+ * @param com      COM编号
  * @retval          USART_TypeDef*,  USART1, USART2, USART3, UART4, UART5,USART6
  */
-USART_TypeDef *com_to_USARTx(COM_PORT_E port)
+static inline USART_TypeDef *com_to_usart(COM_PORT_E com)
 {
-    return usart_list[port - 1];
+    return usart_list[com];
 }
 
 /**
  * @brief       清零串口发送缓冲区
  *
- * @param port  端口号(COM1 - COM6)
+ * @param com  端口号(COM1 - COM6)
  */
-void com_txfifo_clear(COM_PORT_E port)
+void com_txfifo_clear(COM_PORT_E com)
 {
     UART_T *uart;
 
-    uart = com_to_uart(port);
+    uart = com_to_uart(com);
     if (uart == 0)
     {
         return;
     }
 
-    uart->tx_write = 0;
-    uart->tx_read = 0;
-    uart->tx_count = 0;
+    uart->txbuf.write = 0;
+    uart->txbuf.read = 0;
+    uart->txbuf.count = 0;
 }
 
 /**
  * @brief           清零串口接收缓冲区
  *
- * @param port      端口号(COM1 - COM6)
+ * @param com      端口号(COM1 - COM6)
  */
-void com_rxfifo_clear(COM_PORT_E port)
+static void com_rxfifo_clear(COM_PORT_E com)
 {
     UART_T *uart;
 
-    uart = com_to_uart(port);
+    uart = com_to_uart(com);
     if (uart == 0)
     {
         return;
     }
 
-    uart->rx_write = 0;
-    uart->rx_read = 0;
-    uart->rx_count = 0;
+    uart->rxbuf.write = 0;
+    uart->rxbuf.read = 0;
+    uart->rxbuf.count = 0;
 }
 
 /**
  * @brief           设置串口的波特率
  *
- * @param port      端口号(COM1 - COM6)
+ * @param com      端口号(COM1 - COM6)
  * @param baud_rate 波特率,8倍过采样  波特率.0-12.5Mbps
  *                  16倍过采样 波特率.0-6.25Mbps
  * @note            固定设置为无校验,收发都使能模式
  */
-void com_set_baudrate(COM_PORT_E port, uint32_t baud_rate)
+void com_baudrate_setup(COM_PORT_E com, uint32_t baud_rate)
 {
     USART_TypeDef *USARTx;
 
-    USARTx = com_to_USARTx(port);
+    USARTx = com_to_usart(com);
     if (USARTx == 0)
     {
         return;
     }
 
-    bsp_uart_param_setup(USARTx, baud_rate, UART_PARITY_NONE, UART_MODE_TX_RX);
+    com_param_setup(com, baud_rate, UART_PARITY_NONE, UART_MODE_TX_RX);
 }
 
 /*
@@ -335,14 +352,14 @@ static void uart_databuf_send(UART_T *uart, uint8_t *buf, uint16_t len)
             __IO uint16_t usCount;
 
             DISABLE_INT();
-            usCount = uart->tx_count;
+            usCount = uart->txbuf.count;
             ENABLE_INT();
 
-            if (usCount < uart->ustxbufsize)
+            if (usCount < uart->txbuf.bufsize)
             {
                 break;
             }
-            else if (usCount == uart->ustxbufsize) /* 数据已填满缓冲区 */
+            else if (usCount == uart->txbuf.bufsize) /* 数据已填满缓冲区 */
             {
                 if ((uart->uart->CR1 & USART_CR1_TXEIE) == 0)
                 {
@@ -352,14 +369,14 @@ static void uart_databuf_send(UART_T *uart, uint8_t *buf, uint16_t len)
         }
 
         /* 将新数据填入发送缓冲区 */
-        uart->ptxbuf[uart->tx_write] = buf[i];
+        uart->txbuf.buf[uart->txbuf.write] = buf[i];
 
         DISABLE_INT();
-        if (++uart->tx_write >= uart->ustxbufsize)
+        if (++uart->txbuf.write >= uart->txbuf.bufsize)
         {
-            uart->tx_write = 0;
+            uart->txbuf.write = 0;
         }
-        uart->tx_count++;
+        uart->txbuf.count++;
         ENABLE_INT();
     }
 
@@ -369,16 +386,16 @@ static void uart_databuf_send(UART_T *uart, uint8_t *buf, uint16_t len)
 /**
  * @brief       向串口发送一组数据
  *
- * @param port  端口号(COM1 - COM8)
+ * @param com  端口号(COM1 - COM8)
  * @param buf   待发送的数据缓冲区
  * @param len   数据长度
  * @note        数据放到发送缓冲区后立即返回
  */
-void com_buf_send(COM_PORT_E port, uint8_t *buf, uint16_t len)
+void com_databuf_send(COM_PORT_E com, uint8_t *buf, uint16_t len)
 {
     UART_T *uart;
 
-    uart = com_to_uart(port);
+    uart = com_to_uart(com);
     if (uart == 0)
     {
         return;
@@ -389,19 +406,19 @@ void com_buf_send(COM_PORT_E port, uint8_t *buf, uint16_t len)
         uart->before_send(); /* 如果是RS485通信,可以在这个函数中将RS485设置为发送模式 */
     }
 
-    uart_databuf_send(com_to_uart(port), buf, len);
+    uart_databuf_send(com_to_uart(com), buf, len);
 }
 
 /**
  * @brief       向串口发送1个字节
  *
- * @param port  端口号(COM1 - COM8)
+ * @param com  端口号(COM1 - COM8)
  * @param byte  待发送的数据
  * @note        数据放到发送缓冲区后立即返回,由中断服务程序在后台完成发送
  */
-void com_send_char(COM_PORT_E port, uint8_t byte)
+void com_send_char(COM_PORT_E com, uint8_t byte)
 {
-    com_buf_send(port, &byte, 1);
+    com_databuf_send(com, &byte, 1);
 }
 
 /*
@@ -412,16 +429,16 @@ void com_send_char(COM_PORT_E port, uint8_t byte)
 /**
  * @brief       判断发送缓冲区是否为空
  *
- * @param port  串口设备
+ * @param com  串口设备
  * @retval      1:空
  *              0:为不空
  */
-uint8_t uart_tx_isempty(COM_PORT_E port)
+uint8_t com_tx_isempty(COM_PORT_E com)
 {
     UART_T *uart;
     uint8_t sending;
 
-    uart = com_to_uart(port);
+    uart = com_to_uart(com);
     if (uart == 0)
     {
         return 0;
@@ -450,7 +467,7 @@ static uint8_t uart_getchar(UART_T *uart, uint8_t *byte)
 
     /* usRxWrite 变量在中断函数中被改写,主程序读取该变量时,必须进行临界区保护 */
     DISABLE_INT();
-    usCount = uart->rx_count;
+    usCount = uart->rxbuf.count;
     ENABLE_INT();
 
     /* 如果读和写索引相同,则返回0 */
@@ -461,15 +478,15 @@ static uint8_t uart_getchar(UART_T *uart, uint8_t *byte)
     }
     else
     {
-        *byte = uart->prxbuf[uart->rx_read]; /* 从串口接收FIFO取1个数据 */
+        *byte = uart->rxbuf.buf[uart->rxbuf.read]; /* 从串口接收FIFO取1个数据 */
 
         /* 改写FIFO读索引 */
         DISABLE_INT();
-        if (++uart->rx_read >= uart->usRxbufsize)
+        if (++uart->rxbuf.read >= uart->rxbuf.bufsize)
         {
-            uart->rx_read = 0;
+            uart->rxbuf.read = 0;
         }
-        uart->rx_count--;
+        uart->rxbuf.count--;
         ENABLE_INT();
         return 1;
     }
@@ -478,16 +495,16 @@ static uint8_t uart_getchar(UART_T *uart, uint8_t *byte)
 /**
  * @brief           从接收缓冲区读取1字节,非阻塞
  *
- * @param port      端口号(COM1 - COM6)
+ * @param com      端口号(COM1 - COM6)
  * @param byte      接收到的数据存放在这个地址
  * @retval          0:  表示无数据
  *                  1:  读取到有效字节
  */
-uint8_t com_getchar(COM_PORT_E port, uint8_t *byte)
+uint8_t com_getchar(COM_PORT_E com, uint8_t *byte)
 {
     UART_T *uart;
 
-    uart = com_to_uart(port);
+    uart = com_to_uart(com);
     if (uart == 0)
     {
         return 0;
@@ -513,15 +530,15 @@ static void uart_isr(UART_T *uart)
         /* 从串口接收数据寄存器读取数据存放到接收FIFO */
         uint8_t ch;
 
-        ch = READ_REG(uart->uart->DR);             /* 读取串口接收寄存器 */
-        uart->prxbuf[uart->rx_write] = ch;         /* 填入串口接收FIFO */
-        if (++uart->rx_write >= uart->usRxbufsize) /* 接收 FIFO 的写指针+1 */
+        ch = READ_REG(uart->uart->DR);                  /* 读取串口接收寄存器 */
+        uart->rxbuf.buf[uart->rxbuf.write] = ch;        /* 填入串口接收FIFO */
+        if (++uart->rxbuf.write >= uart->rxbuf.bufsize) /* 接收 FIFO 的写指针+1 */
         {
-            uart->rx_write = 0;
+            uart->rxbuf.write = 0;
         }
-        if (uart->rx_count < uart->usRxbufsize) /* 统计未处理的字节个数 */
+        if (uart->rxbuf.count < uart->rxbuf.bufsize) /* 统计未处理的字节个数 */
         {
-            uart->rx_count++;
+            uart->rxbuf.count++;
         }
 
         /* 回调函数,通知应用程序收到新数据,一般是发送1个消息或者设置一个标记 */
@@ -536,7 +553,7 @@ static void uart_isr(UART_T *uart)
     /* 处理发送缓冲区空中断 */
     if (((isrflags & USART_SR_TXE) != RESET) && (cr1its & USART_CR1_TXEIE) != RESET)
     {
-        if (uart->tx_count == 0)
+        if (uart->txbuf.count == 0)
         {
             /* 发送缓冲区的数据已取完时, 禁止发送缓冲区空中断 （注意：此时最后1个数据还未真正发送完毕）*/
             // USART_ITConfig(uart->uart, USART_IT_TXE, DISABLE);
@@ -551,20 +568,20 @@ static void uart_isr(UART_T *uart)
             uart->sending = 1;
 
             /* 从发送FIFO取1个字节写入串口发送数据寄存器 */
-            // USART_SendData(uart->uart, uart->pTxBuf[uart->usTxRead]);
-            uart->uart->DR = uart->ptxbuf[uart->tx_read];
-            if (++uart->tx_read >= uart->ustxbufsize)
+            // USART_Senddata(uart->uart, uart->txbuf.buf[uart->usTxRead]);
+            uart->uart->DR = uart->txbuf.buf[uart->txbuf.read];
+            if (++uart->txbuf.read >= uart->txbuf.bufsize)
             {
-                uart->tx_read = 0;
+                uart->txbuf.read = 0;
             }
-            uart->tx_count--;
+            uart->txbuf.count--;
         }
     }
     /* 数据bit位全部发送完毕的中断 */
     if (((isrflags & USART_SR_TC) != RESET) && ((cr1its & USART_CR1_TCIE) != RESET))
     {
         // if (uart->usTxRead == uart->usTxWrite)
-        if (uart->tx_count == 0)
+        if (uart->txbuf.count == 0)
         {
             /* 如果发送FIFO的数据全部发送完毕,禁止数据发送完毕中断 */
             // USART_ITConfig(uart->uart, USART_IT_TC, DISABLE);
@@ -583,13 +600,13 @@ static void uart_isr(UART_T *uart)
             /* 正常情况下,不会进入此分支 */
 
             /* 如果发送FIFO的数据还未完毕,则从发送FIFO取1个数据写入发送数据寄存器 */
-            // USART_SendData(uart->uart, uart->pTxBuf[uart->usTxRead]);
-            uart->uart->DR = uart->ptxbuf[uart->tx_read];
-            if (++uart->tx_read >= uart->ustxbufsize)
+            // USART_Senddata(uart->uart, uart->txbuf.buf[uart->usTxRead]);
+            uart->uart->DR = uart->txbuf.buf[uart->txbuf.read];
+            if (++uart->txbuf.read >= uart->txbuf.bufsize)
             {
-                uart->tx_read = 0;
+                uart->txbuf.read = 0;
             }
-            uart->tx_count--;
+            uart->txbuf.count--;
         }
     }
 }
@@ -614,6 +631,158 @@ void USART2_IRQHandler(void)
 #endif
 
 /**
+ * @brief           格式化输出，类似于C库中的printf
+ *
+ * @param com       串口编号
+ * @param data      格式化字符串(类似printf)
+ * @param ...       其他参数
+ */
+static uint8_t buffer[2] = {0x0d, 0x0a};
+void com_printf(COM_PORT_E com, char *data, ...)
+{
+    const char *s;
+    int d;
+    char buf[16];
+
+    va_list ap;
+    va_start(ap, data);
+
+    while (*data != 0) // 判断是否到达字符串结束符
+    {
+        if (*data == 0x5c) //'\'
+        {
+            switch (*++data)
+            {
+            case 'r': // 回车符
+                com_send_char(com, buffer[0]);
+                data++;
+                break;
+
+            case 'n': // 换行符
+                com_send_char(com, buffer[1]);
+                data++;
+                break;
+
+            default:
+                data++;
+                break;
+            }
+        }
+
+        else if (*data == '%')
+        { //
+            switch (*++data)
+            {
+            case 's': // 字符串
+                s = va_arg(ap, const char *);
+
+                for (; *s; s++)
+                {
+                    com_send_char(com, *s);
+                    // while (!(READ_BIT(com_to_usart(com)->SR, USART_SR_TXE) == (USART_SR_TXE)))
+                    //     ;
+                }
+
+                data++;
+
+                break;
+
+            case 'd':
+                // 十进制
+                d = va_arg(ap, int);
+
+                itoa(d, buf, 10);
+
+                for (s = buf; *s; s++)
+                {
+                    com_send_char(com, *s);
+                    // while (!(READ_BIT(com_to_usart(com)->SR, USART_SR_TXE) == (USART_SR_TXE)))
+                    //     ;
+                }
+
+                data++;
+
+                break;
+
+            default:
+                data++;
+
+                break;
+            }
+        }
+
+        else
+        {
+            com_send_char(com, *data);
+            data++;
+        }
+        // while (!(READ_BIT(com_to_usart(com)->SR, USART_SR_TXE) == (USART_SR_TXE)))
+        //     ;
+    }
+}
+
+/**
+ * @brief           将整形数据转换成字符串
+ *
+ * @param value     要转换的整形数
+ * @param string    转换后的字符串
+ * @param radix     进制
+ * @retval          转换后的字符串
+ */
+static char *itoa(int value, char *string, int radix)
+{
+    int i, d;
+    int flag = 0;
+    char *ptr = string;
+
+    /* This implementation only works for decimal numbers. */
+    if (radix != 10)
+    {
+        *ptr = 0;
+        return string;
+    }
+
+    if (!value)
+    {
+        *ptr++ = 0x30;
+        *ptr = 0;
+        return string;
+    }
+
+    /* if this is a negative value insert the minus sign. */
+    if (value < 0)
+    {
+        *ptr++ = '-';
+
+        /* Make the value positive. */
+        value *= -1;
+    }
+
+    for (i = 10000; i > 0; i /= 10)
+    {
+        d = value / i;
+
+        if (d || flag)
+        {
+            *ptr++ = (char)(d + 0x30);
+            value -= (d * i);
+            flag = 1;
+        }
+    }
+
+    /* Null terminate the string. */
+    *ptr = 0;
+
+    return string;
+
+} /* NCL_Itoa */
+
+/*
+*********************************************************************************************************
+C库重载
+*********************************************************************************************************
+*/
+/**
  * @brief   重定义putc函数
  *
  */
@@ -633,10 +802,10 @@ int fgetc(FILE *f)
 {
 
     /* 从串口接收FIFO中取1个数据, 只有取到数据才返回 */
-    uint8_t ucData;
+    uint8_t data;
 
-    while (com_getchar(COM1, &ucData) == 0)
+    while (com_getchar(COM1, &data) == 0)
         ;
 
-    return ucData;
+    return data;
 }

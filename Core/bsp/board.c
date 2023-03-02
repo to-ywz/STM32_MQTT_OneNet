@@ -10,6 +10,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #include "board.h"
 
 static sf_timer_t sftimer[2];
@@ -22,8 +23,8 @@ void board_init(void)
     Led_Init();
     timer_task_init();
     bsp_com_init(COM1);
-    bsp_uart_param_setup(USART1, 115200, UART_PARITY_NONE, UART_MODE_TX_RX);
-    com_buf_send(COM1, (uint8_t *)"ABCDEF.\r\n", 11);
+    // bsp_uart_param_setup(USART1, 115200, UART_PARITY_NONE, UART_MODE_TX_RX);
+    com_databuf_send(COM1, (uint8_t *)"ABCDEF.\r\n", 11);
     printf("board peripherals are initialized. by UART1\r\n");
 }
 
@@ -38,6 +39,32 @@ static void timer_task_init(void)
     sf_timer_start(&sftimer[0]);
 }
 
+/**
+ * @brief       获得引脚编号
+ *
+ * @param str   类似PA10类型的字符
+ * @retval      引脚编号(255为非法)
+ */
+uint8_t get_pinnum(char *str)
+{
+    // 将字符转为小写
+    str[0] |= 0x20, str[1] |= 0x20;
+    if (str[0] != 'p')
+        return 255;
+
+    int len = strlen(str);
+    uint8_t pin = 0, port = 0;
+
+    if (len != 3 && len != 4)
+        return 255;
+
+    port = str[1] - 'a';
+    pin = str[2] - '0';
+    if (len > 3)
+        pin = pin * 10 + str[3] - '0';
+
+    return (port * 16 + pin);
+}
 /**
  * @brief 系统复位函数
  *

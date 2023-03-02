@@ -68,8 +68,9 @@ void Error_Handler(void);
 #define NRF_CE_GPIO_Port GPIOB
 #define NRF_CS_Pin GPIO_PIN_7
 #define NRF_CS_GPIO_Port GPIOB
-#define NRF_IRQ_Pin GPIO_PIN_8
-#define NRF_IRQ_GPIO_Port GPIOB
+#define NRF_IQR_Pin GPIO_PIN_8
+#define NRF_IQR_GPIO_Port GPIOB
+#define NRF_IQR_EXTI_IRQn EXTI9_5_IRQn
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

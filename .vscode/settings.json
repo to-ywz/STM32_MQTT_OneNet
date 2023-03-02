@@ -6,6 +6,7 @@
         "*.html": "html",
         "stm32f4xx_hal.h": "c",
         "board.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "bsp_gpio_def.h": "c"
     }
 }
