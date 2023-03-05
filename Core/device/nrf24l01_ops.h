@@ -1,5 +1,5 @@
-#ifndef _NRF24L01_H
-#define _NRF24L01_H
+#ifndef _NRF24L01_OPS_H
+#define _NRF24L01_OPS_H
 
 #include <stdint.h>
 
@@ -43,11 +43,11 @@ typedef struct NRF24L01Object
     void (*Delayms)(volatile uint32_t nTime); // 毫秒延时操作指针
 } NRF24L01ObjectType;
 
-typedef uint8_t (*NRF24L01ReadWriteByte)(uint8_t TxData); // 声明向nRF24L01读写一个字节的函数
-typedef void (*NRF24L01ChipSelect)(NRF24L01CSType cs);    // 声明片选操作函数
-typedef void (*NRF24L01ChipEnable)(NRF24L01CEType en);    // 声明使能及模式操作函数
-typedef uint8_t (*NRF24L01GetIRQ)(void);                  // 声明中断获取函数
-typedef void (*NRF24L01Delayms)(volatile uint32_t nTime); // 毫秒延时操作指针
+typedef uint8_t (*NRF24L01ReadWriteByte_t)(uint8_t TxData); // 声明向nRF24L01读写一个字节的函数
+typedef void (*NRF24L01ChipSelect_t)(NRF24L01CSType cs);    // 声明片选操作函数
+typedef void (*NRF24L01ChipEnable_t)(NRF24L01CEType en);    // 声明使能及模式操作函数
+typedef uint8_t (*NRF24L01GetIRQ_t)(void);                  // 声明中断获取函数
+typedef void (*NRF24L01Delayms_t)(volatile uint32_t nTime); // 毫秒延时操作指针
 
 /*启动NRF24L01发送一次数据包*/
 uint8_t NRF24L01TransmitPacket(NRF24L01ObjectType *nrf, uint8_t *txbuf);
@@ -57,11 +57,11 @@ uint8_t NRF24L01ReceivePacket(NRF24L01ObjectType *nrf, uint8_t *rxbuf);
 
 /*nRF24L01对象初始化函数*/
 NRF24L01ErrorType NRF24L01Initialization(NRF24L01ObjectType *nrf,            // nRF24L01对象
-                                         NRF24L01ReadWriteByte spiReadWrite, // SPI读写函数指针
-                                         NRF24L01ChipSelect cs,              // 片选信号操作函数指针
-                                         NRF24L01ChipEnable ce,              // 使能信号操作函数指针
-                                         NRF24L01GetIRQ irq,                 // 中断信号获取函数指针
-                                         NRF24L01Delayms delayms             // 毫秒延时
+                                         NRF24L01ReadWriteByte_t spiReadWrite, // SPI读写函数指针
+                                         NRF24L01ChipSelect_t cs,              // 片选信号操作函数指针
+                                         NRF24L01ChipEnable_t ce,              // 使能信号操作函数指针
+                                         NRF24L01GetIRQ_t irq,                 // 中断信号获取函数指针
+                                         NRF24L01Delayms_t delayms             // 毫秒延时
 );
 
 #endif

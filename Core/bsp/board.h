@@ -9,10 +9,9 @@
 #include "ringbuffer.h"
 #include "bsp_uart.h"
 #include "systick.h"
-
+#include "sys.h"
+#include "nrf24l01.h"
 
 void board_init(void);
-void board_system_reset(void);
-uint8_t get_pinnum(char *str);
 
 #endif

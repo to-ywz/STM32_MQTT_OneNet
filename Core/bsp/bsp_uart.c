@@ -15,6 +15,7 @@
 #include <stdarg.h>
 #include "bsp_gpio_def.h"
 #include "bsp_uart.h"
+#include "sys.h"
 
 #define UART_NUM 1
 
@@ -55,7 +56,7 @@ static void uart_hard_init(COM_PORT_E com);
 static void uar_object_init(COM_PORT_E prot);
 static USART_TypeDef *com_to_usart(COM_PORT_E com);
 static UART_T *com_to_uart(COM_PORT_E com);
-static char *itoa(int value, char *string, int radix);
+
 /**
  * @brief           配置串口的硬件参数
  *
@@ -720,62 +721,6 @@ void com_printf(COM_PORT_E com, char *data, ...)
         //     ;
     }
 }
-
-/**
- * @brief           将整形数据转换成字符串
- *
- * @param value     要转换的整形数
- * @param string    转换后的字符串
- * @param radix     进制
- * @retval          转换后的字符串
- */
-static char *itoa(int value, char *string, int radix)
-{
-    int i, d;
-    int flag = 0;
-    char *ptr = string;
-
-    /* This implementation only works for decimal numbers. */
-    if (radix != 10)
-    {
-        *ptr = 0;
-        return string;
-    }
-
-    if (!value)
-    {
-        *ptr++ = 0x30;
-        *ptr = 0;
-        return string;
-    }
-
-    /* if this is a negative value insert the minus sign. */
-    if (value < 0)
-    {
-        *ptr++ = '-';
-
-        /* Make the value positive. */
-        value *= -1;
-    }
-
-    for (i = 10000; i > 0; i /= 10)
-    {
-        d = value / i;
-
-        if (d || flag)
-        {
-            *ptr++ = (char)(d + 0x30);
-            value -= (d * i);
-            flag = 1;
-        }
-    }
-
-    /* Null terminate the string. */
-    *ptr = 0;
-
-    return string;
-
-} /* NCL_Itoa */
 
 /*
 *********************************************************************************************************

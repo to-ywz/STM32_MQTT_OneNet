@@ -11,7 +11,7 @@
 #include <stdint.h>
 
 #include "led.h"
-
+#include "sys.h"
 // 宏
 #define arrayof(x) (sizeof(x) / sizeof(x[0]))
 
@@ -52,8 +52,7 @@ static led_status_t getLedMode(uint8_t id);
 
 // 全局变量
 uint16_t Pin_List[LED_NUM] = {
-    6,
-    7,
+	7 
 };
 LedListObject_t G_led_list;
 

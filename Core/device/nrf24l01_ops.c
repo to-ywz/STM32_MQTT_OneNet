@@ -89,7 +89,7 @@
 /******************************************************************************/
 
 #include "stddef.h"
-#include "nrf24l01.h"
+#include "nrf24l01_ops.h"
 
 /*nRF24L01寄存器操作命令*/
 #define READ_REG_NRF 0x00  // 读配置寄存器,低5位为寄存器地址
@@ -209,12 +209,12 @@ uint8_t NRF24L01ReceivePacket(NRF24L01ObjectType *nrf, uint8_t *rxbuf)
 }
 
 /*nRF24L01对象初始化函数*/
-NRF24L01ErrorType NRF24L01Initialization(NRF24L01ObjectType *nrf,            // nRF24L01对象
-                                         NRF24L01ReadWriteByte spiReadWrite, // SPI读写函数指针
-                                         NRF24L01ChipSelect cs,              // 片选信号操作函数指针
-                                         NRF24L01ChipEnable ce,              // 使能信号操作函数指针
-                                         NRF24L01GetIRQ irq,                 // 中断信号获取函数指针
-                                         NRF24L01Delayms delayms             // 毫秒延时
+NRF24L01ErrorType NRF24L01Initialization(NRF24L01ObjectType *nrf,              // nRF24L01对象
+                                         NRF24L01ReadWriteByte_t spiReadWrite, // SPI读写函数指针
+                                         NRF24L01ChipSelect_t cs,              // 片选信号操作函数指针
+                                         NRF24L01ChipEnable_t ce,              // 使能信号操作函数指针
+                                         NRF24L01GetIRQ_t irq,                 // 中断信号获取函数指针
+                                         NRF24L01Delayms_t delayms             // 毫秒延时
 )
 {
     int retry = 0;
@@ -310,7 +310,7 @@ static uint8_t NRF24L01Check(NRF24L01ObjectType *nrf)
     uint8_t writeBuf[5] = {0XA5, 0XA5, 0XA5, 0XA5, 0XA5};
     uint8_t readBuf[5] = {0XAA, 0XAA, 0XAA, 0XAA, 0XAA};
     uint8_t status = 0;
-
+    
     NRF24L01WriteBuffer(nrf, WRITE_REG_NRF + TX_ADDR, writeBuf, 5); /*写入5个字节的地址*/
     NRF24L01ReadBuffer(nrf, TX_ADDR, readBuf, 5);                   /*读出写入的地址*/
 
@@ -367,7 +367,7 @@ static uint8_t NRF24L01ReadBuffer(NRF24L01ObjectType *nrf, uint8_t reg, uint8_t 
 {
     uint8_t status;
 
-    nrf->ChipSelect(NRF24L01CS_Enable); // 使能SPI传输
+    nrf->ChipSelect(NRF24L01CS_Enable);
 
     status = nrf->ReadWriteByte(reg); // 发送寄存器值(位置),并读取状态值
 
@@ -376,9 +376,9 @@ static uint8_t NRF24L01ReadBuffer(NRF24L01ObjectType *nrf, uint8_t reg, uint8_t 
         pBuf[i] = nrf->ReadWriteByte(0XFF); // 读出数据
     }
 
-    nrf->ChipSelect(NRF24L01CS_Disable); // 关闭SPI传输
+    nrf->ChipSelect(NRF24L01CS_Disable);
 
-    return status; // 返回读到的状态值
+    return status;
 }
 
 /*在指定位置写指定长度的数据*/
@@ -410,5 +410,6 @@ static void NRF24L01CSDefault(NRF24L01CSType cs)
     // 用于在SPI通讯时，片选信号硬件电路选中的情况
     return;
 }
+
 
 /*********** (C) COPYRIGHT 1999-2018 Moonan Technology *********END OF FILE****/
