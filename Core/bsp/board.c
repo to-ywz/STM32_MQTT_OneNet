@@ -27,7 +27,7 @@ void board_init(void)
     bsp_com_init(COM1);
     
     nrf24l01_init();
-    com_databuf_send(COM1, (uint8_t *)"ABCDEF.\r\n", 11);
+    
     printf("board peripherals are initialized. by UART1\r\n");
 } 
 
@@ -38,7 +38,7 @@ static void timer1_task(void)
 
 static void timer2_task(void)
 {
-    // NRF24L01DataExchange();
+   NRF24L01DataExchange();
 }
 
 static void timer_task_init(void)

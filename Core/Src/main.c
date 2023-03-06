@@ -101,6 +101,7 @@ int main(void)
   while (1)
   {
     sf_timer_loop();
+    // NRF24L01DataExchange();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

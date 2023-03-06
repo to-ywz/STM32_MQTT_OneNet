@@ -159,6 +159,17 @@ static void SetNRF24L01Mode(NRF24L01ObjectType *nrf, NRF24L01ModeType mode);
 /*缺省片选处理函数*/
 static void NRF24L01CSDefault(NRF24L01CSType cs);
 
+#include "stm32f4xx_hal.h"
+#include "spi.h"
+void SPI1_SetSpeed(uint8_t SPI_BaudRatePrescaler)
+{
+    assert_param(IS_SPI_BAUDRATE_PRESCALER(SPI_BaudRatePrescaler)); // 判断有效性
+    __HAL_SPI_DISABLE(&hspi1);                                      // 关闭SPI
+    hspi1.Instance->CR1 &= 0XFFC7;                                  // 位3-5清零，用来设置波特率
+    hspi1.Instance->CR1 |= SPI_BaudRatePrescaler;                   // 设置SPI速度
+    __HAL_SPI_ENABLE(&hspi1);                                       // 使能SPI
+}
+
 /*启动NRF24L01发送一次数据包*/
 /*参数：txbuf:待发送数据首地址*/
 /*返回值：发送完成状况*/
@@ -167,6 +178,7 @@ uint8_t NRF24L01TransmitPacket(NRF24L01ObjectType *nrf, uint8_t *txbuf)
     uint8_t status;
 
     SetNRF24L01Mode(nrf, NRF24L01TxMode);
+    SPI1_SetSpeed(SPI_BAUDRATEPRESCALER_16); // spi速度为5.75Mhz（24L01的最大SPI时钟为10Mhz）
 
     nrf->ChipEnable(NRF24L01CE_Disable);
     NRF24L01WriteBuffer(nrf, WR_TX_PLOAD, txbuf, TX_PLOAD_WIDTH); // 写数据到TX BUF 32个字节
@@ -196,6 +208,7 @@ uint8_t NRF24L01ReceivePacket(NRF24L01ObjectType *nrf, uint8_t *rxbuf)
     uint8_t status;
 
     SetNRF24L01Mode(nrf, NRF24L01RxMode);
+    SPI1_SetSpeed(SPI_BAUDRATEPRESCALER_16);
 
     status = NRF24L01ReadRegigster(nrf, STATUS);                // 读取状态寄存器的值
     NRF24L01WriteRegister(nrf, WRITE_REG_NRF + STATUS, status); // 清除TX_DS或MAX_RT中断标志
@@ -310,7 +323,7 @@ static uint8_t NRF24L01Check(NRF24L01ObjectType *nrf)
     uint8_t writeBuf[5] = {0XA5, 0XA5, 0XA5, 0XA5, 0XA5};
     uint8_t readBuf[5] = {0XAA, 0XAA, 0XAA, 0XAA, 0XAA};
     uint8_t status = 0;
-    
+
     NRF24L01WriteBuffer(nrf, WRITE_REG_NRF + TX_ADDR, writeBuf, 5); /*写入5个字节的地址*/
     NRF24L01ReadBuffer(nrf, TX_ADDR, readBuf, 5);                   /*读出写入的地址*/
 
@@ -410,6 +423,5 @@ static void NRF24L01CSDefault(NRF24L01CSType cs)
     // 用于在SPI通讯时，片选信号硬件电路选中的情况
     return;
 }
-
 
 /*********** (C) COPYRIGHT 1999-2018 Moonan Technology *********END OF FILE****/

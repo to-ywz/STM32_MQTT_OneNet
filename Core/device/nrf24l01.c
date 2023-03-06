@@ -60,21 +60,28 @@ static void NRF24L01Delayms(volatile uint32_t ntime)
 }
 #include "stdio.h"
 /*NRF24L01数据通讯*/
+/*NRF24L01数据通讯*/
 void NRF24L01DataExchange(void)
 {
     uint8_t txDatas[32] = {0xAA};
     uint8_t rxDatas[32] = {0x00};
 
-    if (0x20 == NRF24L01TransmitPacket(&nrf, txDatas))
-    {
-        printf("nrf is send data successs\r\n");
-    }
-    else
-    {
-        printf("nrf is send data failed\r\n");
-    }
-    // NRF24L01ReceivePacket(&nrf, rxDatas);
-    // printf("%x\r\n", rxDatas[0]);
+    // if (0x20 == NRF24L01TransmitPacket(&nrf, txDatas))
+    // {
+    //     printf("send success\r\n");
+    // }
+    // else
+    // {
+    //     printf("send failed\r\n");
+    // }
+   if (!NRF24L01ReceivePacket(&nrf, rxDatas))
+   {
+       for (int i = 0; i < 5; i++)
+       {
+           printf("%x ", rxDatas[i]);
+       }
+       printf("\r\n");
+   }
 }
 
 // FILE END

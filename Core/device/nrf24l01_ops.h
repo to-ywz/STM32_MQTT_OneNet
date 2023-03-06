@@ -21,8 +21,8 @@ typedef enum NRF24L01CS
 /* 定义使能信号枚举 */
 typedef enum NRF24L01CE
 {
-    NRF24L01CE_Enable,
-    NRF24L01CE_Disable
+    NRF24L01CE_Disable,
+    NRF24L01CE_Enable 
 } NRF24L01CEType;
 
 /*定义模式枚举*/
