@@ -59,30 +59,46 @@ static void nrf24l01_delayms(volatile uint16_t ntime)
     delayms(ntime);
 }
 #include "stdio.h"
-/*NRF24L01数据通讯*/
-/*NRF24L01数据通讯*/
-void NRF24L01DataExchange(void)
+
+/**
+ * @brief       发送数据业务逻辑
+ * 
+ */
+void nrf24l01_data_xmit(float data)
 {
-    uint8_t txDatas[32] = {0xAA};
+    uint8_t txbuf[32] = {0xAA, 0x0f, 0, 0, 0xf0, 0xAA};
+
+    txbuf[2] = (int)(data);
+    txbuf[3] = (data - (int)(data)) * 100;
+
+    if (0x20 == nrf24l01_packet_xmit(&nrf, txbuf))
+    {
+        printf("send success\r\n");
+    }
+    else
+    {
+        printf("send failed\r\n");
+    }
+}
+
+/**
+ * @brief   接收数据业务逻辑
+ *
+ */
+void nrf24l01_data_recv(void)
+{
     uint8_t rxDatas[32] = {0x00};
 
-    // 发送
-    // if (0x20 == nrf24l01_packet_xmit(&nrf, txDatas))
-    // {
-    //     printf("send success\r\n");
-    // }
-    // else
-    // {
-    //     printf("send failed\r\n");
-    // }
-    // 接收
     if (!nrf24l01_packet_recv(&nrf, rxDatas))
     {
-        for (int i = 0; i < 5; i++)
+        if (rxDatas[0] == 0xaa && rxDatas[1] == 0x0f && rxDatas[4] == 0xf0 && 0xaa == rxDatas[5])
         {
-            printf("%x ", rxDatas[i]);
+            printf("humidity = %d.%d\r\n", rxDatas[2], rxDatas[3]);
         }
-        printf("\r\n");
+        else
+        {
+            printf("frame data is error.\r\n");
+        }
     }
 }
 

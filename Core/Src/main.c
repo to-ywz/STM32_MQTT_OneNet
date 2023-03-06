@@ -159,7 +159,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t pin)
   {
     if (key_cnt > 2)
     {
-      NRF24L01DataExchange();
+      nrf24l01_data_xmit(0.1);
       key_cnt = 0;
     }
     else

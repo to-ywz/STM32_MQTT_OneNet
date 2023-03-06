@@ -630,6 +630,16 @@
               <FileType>1</FileType>
               <FilePath>..\Core\device\nrf24l01_ops.c</FilePath>
             </File>
+            <File>
+              <FileName>dht11.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\device\dht11.c</FilePath>
+            </File>
+            <File>
+              <FileName>dht11_ops.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\device\dht11_ops.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

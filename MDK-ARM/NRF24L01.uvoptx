@@ -135,7 +135,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
-          <Name></Name>
+          <Name>@?	M</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -157,7 +157,7 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>1317</LineNumber>
+          <LineNumber>280</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>2</Address>
           <ByteObject>0</ByteObject>
@@ -166,9 +166,41 @@
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c</Filename>
+          <Filename>..\Core\bsp\bsp_uart.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\NRF24L01\../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c\1317</Expression>
+          <Expression>\\NRF24L01\../Core/bsp/bsp_uart.c\280</Expression>
+        </Bp>
+        <Bp>
+          <Number>1</Number>
+          <Type>0</Type>
+          <LineNumber>65</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134228192</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\Core\device\nrf24l01.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\NRF24L01\../Core/device/nrf24l01.c\65</Expression>
+        </Bp>
+        <Bp>
+          <Number>2</Number>
+          <Type>0</Type>
+          <LineNumber>65</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134228208</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\Core\device\nrf24l01.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\NRF24L01\../Core/device/nrf24l01.c\65</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -180,7 +212,7 @@
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>readBuf</ItemText>
+          <ItemText>txbuf</ItemText>
         </Ww>
       </WatchWindow1>
       <Tracepoint>
@@ -703,6 +735,30 @@
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
+    <File>
+      <GroupNumber>7</GroupNumber>
+      <FileNumber>34</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>..\Core\device\dht11.c</PathWithFileName>
+      <FilenameWithoutPath>dht11.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>7</GroupNumber>
+      <FileNumber>35</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>..\Core\device\dht11_ops.c</PathWithFileName>
+      <FilenameWithoutPath>dht11_ops.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
   </Group>
 
   <Group>
@@ -713,7 +769,7 @@
     <RteFlg>0</RteFlg>
     <File>
       <GroupNumber>8</GroupNumber>
-      <FileNumber>34</FileNumber>
+      <FileNumber>36</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -725,7 +781,7 @@
     </File>
     <File>
       <GroupNumber>8</GroupNumber>
-      <FileNumber>35</FileNumber>
+      <FileNumber>37</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -737,7 +793,7 @@
     </File>
     <File>
       <GroupNumber>8</GroupNumber>
-      <FileNumber>36</FileNumber>
+      <FileNumber>38</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>

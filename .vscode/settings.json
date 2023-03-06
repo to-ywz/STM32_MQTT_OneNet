@@ -9,6 +9,7 @@
         "stdio.h": "c",
         "bsp_gpio_def.h": "c",
         "stdint.h": "c",
-        "nrf24l01_ops.h": "c"
+        "nrf24l01_ops.h": "c",
+        "dht": "c"
     }
 }
