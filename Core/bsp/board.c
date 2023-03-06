@@ -44,7 +44,7 @@ static void timer2_task(void)
 static void timer_task_init(void)
 {
     sf_timer_init(&sftimer[0], timer1_task, 50, 50);
-    sf_timer_init(&sftimer[1], timer2_task, 100, 100);
+    sf_timer_init(&sftimer[1], timer2_task, 1000, 1000);
     sf_timer_start(&sftimer[0]);
     sf_timer_start(&sftimer[1]);
 }

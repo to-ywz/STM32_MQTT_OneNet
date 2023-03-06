@@ -4,64 +4,64 @@
 #include <stdint.h>
 
 /*定义NRF24L01错误枚举*/
-typedef enum NRF24L01Error
+typedef enum NRF24L01ERROR
 {
-    NRF24L01_NoError,
-    NRF24L01_InitError,
-    NRF24L01_Absent
-} NRF24L01ErrorType;
+    NRF24L01_NOERROR,
+    NRF24L01_INITERROR,
+    NRF24L01_ABSENT
+} NRF24L01_ERROR_ET;
 
 /* 定义片选信号枚举 */
 typedef enum NRF24L01CS
 {
-    NRF24L01CS_Enable,
-    NRF24L01CS_Disable
-} NRF24L01CSType;
+    NRF24L01CS_ENABLE,
+    NRF24L01CS_DISABLE
+} NRF24L01_CS_ET;
 
 /* 定义使能信号枚举 */
 typedef enum NRF24L01CE
 {
-    NRF24L01CE_Disable,
-    NRF24L01CE_Enable 
-} NRF24L01CEType;
+    NRF24L01CE_DISABLE,
+    NRF24L01CE_ENABLE 
+} NRF24L01_CE_ET;
 
 /*定义模式枚举*/
-typedef enum NRF24L01Mode
+typedef enum NRF24L01_MODE
 {
     NRF24L01TxMode = 0,
     NRF24L01RxMode = 1
 } NRF24L01ModeType;
 
 /* 定义NRF24L01对象类型 */
-typedef struct NRF24L01Object
+typedef struct nrf24l01_struct
 {
     uint8_t reg[8];                           // 记录前8个配置寄存器
-    uint8_t (*ReadWriteByte)(uint8_t TxData); // 声明向nRF24L01读写一个字节的函数
-    void (*ChipSelect)(NRF24L01CSType cs);    // 声明片选操作函数
-    void (*ChipEnable)(NRF24L01CEType en);    // 声明使能及模式操作函数
-    uint8_t (*GetIRQ)(void);                  // 声明中断获取函数
-    void (*Delayms)(volatile uint32_t nTime); // 毫秒延时操作指针
-} NRF24L01ObjectType;
+    uint8_t (*byte_readwrite)(uint8_t txbuf); // 声明向nRF24L01读写一个字节的函数
+    void (*chip_select)(NRF24L01_CS_ET cs);    // 声明片选操作函数
+    void (*chip_enable)(NRF24L01_CE_ET en);    // 声明使能及模式操作函数
+    uint8_t (*get_iqr)(void);                  // 声明中断获取函数
+    void (*delayms)(volatile uint16_t ntime); // 毫秒延时操作指针
+} nrf24l01_t;
 
-typedef uint8_t (*NRF24L01ReadWriteByte_t)(uint8_t TxData); // 声明向nRF24L01读写一个字节的函数
-typedef void (*NRF24L01ChipSelect_t)(NRF24L01CSType cs);    // 声明片选操作函数
-typedef void (*NRF24L01ChipEnable_t)(NRF24L01CEType en);    // 声明使能及模式操作函数
-typedef uint8_t (*NRF24L01GetIRQ_t)(void);                  // 声明中断获取函数
-typedef void (*NRF24L01Delayms_t)(volatile uint32_t nTime); // 毫秒延时操作指针
+typedef uint8_t (*nrf24l01_byte_readwrite_t)(uint8_t txbuf); // 声明向nRF24L01读写一个字节的函数
+typedef void (*nrf24l01_chip_select_t)(NRF24L01_CS_ET cs);    // 声明片选操作函数
+typedef void (*nrf24l01_chip_enable_t)(NRF24L01_CE_ET en);    // 声明使能及模式操作函数
+typedef uint8_t (*nrf24l01_get_iqr_t)(void);                  // 声明中断获取函数
+typedef void (*nrf24l01_delayms_t)(volatile uint16_t ntime); // 毫秒延时操作指针
 
 /*启动NRF24L01发送一次数据包*/
-uint8_t NRF24L01TransmitPacket(NRF24L01ObjectType *nrf, uint8_t *txbuf);
+uint8_t nrf24l01_packet_xmit(nrf24l01_t *nrf, uint8_t *txbuf);
 
 /*启动NRF24L01接收一次数据包*/
-uint8_t NRF24L01ReceivePacket(NRF24L01ObjectType *nrf, uint8_t *rxbuf);
+uint8_t nrf24l01_packet_recv(nrf24l01_t *nrf, uint8_t *rxbuf);
 
 /*nRF24L01对象初始化函数*/
-NRF24L01ErrorType NRF24L01Initialization(NRF24L01ObjectType *nrf,            // nRF24L01对象
-                                         NRF24L01ReadWriteByte_t spiReadWrite, // SPI读写函数指针
-                                         NRF24L01ChipSelect_t cs,              // 片选信号操作函数指针
-                                         NRF24L01ChipEnable_t ce,              // 使能信号操作函数指针
-                                         NRF24L01GetIRQ_t irq,                 // 中断信号获取函数指针
-                                         NRF24L01Delayms_t delayms             // 毫秒延时
+NRF24L01_ERROR_ET nrf24L01_init(nrf24l01_t *nrf,            // nRF24L01对象
+                                         nrf24l01_byte_readwrite_t spiReadWrite, // SPI读写函数指针
+                                         nrf24l01_chip_select_t cs,              // 片选信号操作函数指针
+                                         nrf24l01_chip_enable_t ce,              // 使能信号操作函数指针
+                                         nrf24l01_get_iqr_t irq,                 // 中断信号获取函数指针
+                                         nrf24l01_delayms_t delayms             // 毫秒延时
 );
 
 #endif
