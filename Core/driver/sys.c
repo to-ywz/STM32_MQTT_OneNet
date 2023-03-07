@@ -21,9 +21,9 @@
  */
 int get_pinnum(char *str)
 {
-    // 将字符转为小写
-    str[0] |= 0x20, str[1] |= 0x20;
-    if (str[0] != 'p')
+    // 将字符转为小写 | 0x20 将字符串转为小写
+    // str[0] |= 0x20, str[1] | 0x20;
+    if ((str[0] | 0x20) != 'p')
         return -1;
 
     int len = strlen(str);
@@ -32,10 +32,10 @@ int get_pinnum(char *str)
     if (len != 3 && len != 4)
         return -1;
 
-    port = str[1] - 'a';
-    pin = str[2] - '0';
+    port = (str[1] | 0x20) - 'a';
+    pin = (str[2] | 0x20) - '0';
     if (len > 3)
-        pin = pin * 10 + str[3] - '0';
+        pin = pin * 10 + (str[3] | 0x20) - '0';
 
     return (port * 16 + pin);
 }

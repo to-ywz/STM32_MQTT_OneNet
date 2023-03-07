@@ -43,7 +43,7 @@ static void timer2_task(void)
     dht11_data_update(0);
     printf("humidity = %.2f.\t", dht11_get_humidity(0));
     nrf24l01_data_xmit(dht11_get_humidity(0));
-    // nrf24l01_data_recv();
+    //nrf24l01_data_recv();
 }
 
 static void timer_task_init(void)

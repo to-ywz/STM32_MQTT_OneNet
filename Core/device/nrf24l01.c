@@ -52,7 +52,7 @@ static void nrf24l01_chip_enable(NRF24L01_CE_ET en) // ce
 }
 static uint8_t nrf24l01_iqr_get(void)
 {
-    return bsp_pin_read(NRF_IQR_Pin);
+    return bsp_pin_read(get_pinnum(NRF_IQR_PIN));
 }
 static void nrf24l01_delayms(volatile uint16_t ntime)
 {
@@ -62,7 +62,7 @@ static void nrf24l01_delayms(volatile uint16_t ntime)
 
 /**
  * @brief       发送数据业务逻辑
- * 
+ *
  */
 void nrf24l01_data_xmit(float data)
 {
