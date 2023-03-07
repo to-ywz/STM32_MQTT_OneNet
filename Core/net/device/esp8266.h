@@ -65,6 +65,20 @@ typedef struct Esp8266Object
 		uint8_t lengthRecieving;		   // 正在接收的数据长度
 		uint8_t lengthRecieved;			   // 已经接收的数据长度
 	} rxBuffer;
+
+	/* esp8266 状态*/
+	union
+	{
+		uint8_t all;
+		struct
+		{
+			uint8_t running : 1;			// esp8266 上电运行
+			uint8_t join_ap : 1;			// esp8266 是否接入wifi
+			uint8_t connect_server : 1;		// esp8266 是否连接到云端
+			uint8_t reserve : 5;
+		} bit;
+	}SR;
+
 	void (*SendData)(uint8_t *uData, uint16_t uSize); // 数据发送函数指针
 	void (*Delayms)(volatile uint32_t nTime);		  // 延时操作指针
 } Esp8266Object_t;

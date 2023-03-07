@@ -43,6 +43,8 @@
         "bsp_esp8266_test.h": "c",
         "mqttkit.h": "c",
         "dht11.h": "c",
-        "onenet.h": "c"
+        "onenet.h": "c",
+        "ringbuffer.h": "c",
+        "bsp_esp8266.h": "c"
     }
 }

@@ -102,12 +102,12 @@ void Esp8266_ObjecInit(Esp8266Object_t *esp,
 	// 让Wifi模块重启的命令
 	times = 0;
 	printf("ESP9266 try to restart device.\r\n");
-	while (Esp8266_sendCommmand(esp, "AT+RST\r\n", "OK", 20) == Esp8266_TxFial)
+	if (Esp8266_sendCommmand(esp, "AT+RST\r\n", "OK", 20) == Esp8266_TxFial)
 	{
-		printf("Try to restart the device agin.(%d)\r\n", times++);
+		printf("Try to restart the device agin.(没必要)\r\n");
 	}
 
-	esp->Delayms(3000); // 延时3S等待重启成功
+	esp->Delayms(3000); // 延时3S等待重启成功 
 
 	printf("ESP9266 is restarted.\r\n");
 	clearReciveBuffer(esp);

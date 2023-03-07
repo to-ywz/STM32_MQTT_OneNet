@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include "board.h"
+#include "bsp_spi.h"
 
 void board_init(void)
 {
@@ -18,7 +19,9 @@ void board_init(void)
 
     delay_Init();
     Led_Init();
-    DHT11_Init();
+    // DHT11_Init();
+    bsp_initspibus();
+    nrf24l01_init();
     esp8266Init();
     printf("board peripherals are initialized. by UART1\r\n");
     // uart_sendString(&huart2, "board peripherals are initialized. by UART2\r\n");

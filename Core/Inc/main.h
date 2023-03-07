@@ -58,8 +58,13 @@ extern uint32_t Tick_counter;
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define DHT_DATA_Pin GPIO_PIN_4
-#define DHT_DATA_GPIO_Port GPIOB
+#define NRF_IQR_Pin GPIO_PIN_10
+#define NRF_IQR_GPIO_Port GPIOB
+#define NRF_IQR_EXTI_IRQn EXTI15_10_IRQn
+#define NRF_CE_Pin GPIO_PIN_6
+#define NRF_CE_GPIO_Port GPIOB
+#define NRF_CS_Pin GPIO_PIN_7
+#define NRF_CS_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

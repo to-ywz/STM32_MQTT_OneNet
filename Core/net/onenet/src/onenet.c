@@ -125,8 +125,8 @@ uint8_t onenet_dev_link(const char *devid, const char *proid, const char *auth_i
 		G_oneNet.SR.bit.err_count = 0;
 
 		G_oneNet.SR.bit.err_check = 1;
-		
-	}return 1;
+	}
+	return 1;
 }
 
 /**
@@ -747,7 +747,7 @@ static uint8_t get_rev_result(void)
 //
 //	说明：
 //==========================================================
-uint8_t OneNET_SendData(void)
+uint8_t OneNET_SendData(uint8_t *databuf)
 {
 	static uint8_t err_cnt = 0;
 

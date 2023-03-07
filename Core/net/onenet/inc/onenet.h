@@ -81,7 +81,7 @@ unsigned char onenet_publish(const char *topic, const char *msg);
 void onenet_rev_pro(unsigned char *cmd);
 
 _Bool OneNET_DevLink(void);
-uint8_t OneNET_SendData(void);
+uint8_t OneNET_SendData(uint8_t *databuf);
 void OneNET_SendCmd(void);
 void OneNET_RevPro(unsigned char *cmd);
 unsigned char *OneNET_GetIPD(uint16_t timeOut);

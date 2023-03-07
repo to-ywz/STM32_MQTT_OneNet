@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "spi.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -93,8 +94,9 @@ int main(void)
 
 	/* Initialize all configured peripherals */
 	MX_GPIO_Init();
-	MX_USART1_UART_Init();
 	MX_USART2_UART_Init();
+	MX_SPI1_Init();
+	MX_USART1_UART_Init();
 	/* USER CODE BEGIN 2 */
 
 	board_init();
@@ -113,7 +115,7 @@ int main(void)
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 	uint8_t *dataPtr = NULL;
-
+	uint8_t buf[5] = {0};
 	uint32_t heartbeat_timer = 0;
 	while (1)
 	{
@@ -122,23 +124,31 @@ int main(void)
 			heartbeat_timer++;
 			Tick_counter = 0;
 
-			G_dht11.dataUpdate();
+			// G_dht11.dataUpdate();
 			printf("temp:%.02f humi:%.02f\r\n", G_dht11.obj.temperature, G_dht11.obj.humidity);
 
 			// 数据发送到云端
 			printf("Send data to web server.\r\n");
-			if (OneNET_SendData())
+			if (OneNET_SendData(buf))
 			{
-				printf("Publish is Failed.%c\r\n", esp8266.rxBuffer.queue[0]);
+				printf("==========================\r\n"
+					   "Publish is Failed.\r\n"
+					   "==========================\r\n");
 			}
 			else
 			{
-				printf("Publish is Finished%c\r\n", esp8266.rxBuffer.queue[0]);
+				printf("Publish is Finished.\r\n");
 			}
 		}
 
-		if (heartbeat_timer >= 24)
-		{// 2h 重连一次
+		if (Tick_counter % 100)
+		{
+			nrf24l01_data_recv(buf);
+			G_dht11.obj.humidity = buf[0] + (float)buf[1] / 100;
+		}
+
+		if (heartbeat_timer >= 7 * 3600)
+		{ // 7h 重连�??�??
 			heartbeat_timer = 0;
 			OneNET_DevLink();
 		}

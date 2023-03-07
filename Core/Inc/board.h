@@ -10,6 +10,7 @@
 #include "ringbuffer.h"
 #include "bsp_uart.h"
 #include "bsp_esp8266.h"
+#include "nrf24l01.h"
 
 #define LED0_PIN 105
 
