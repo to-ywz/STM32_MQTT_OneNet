@@ -1,0 +1,11 @@
+MDK-ARM/STM32_IAP_Demo/*.*
+MDK-ARM/STM32_IAP_Demo/*.o
+MDK-ARM/STM32_IAP_Demo/*.i
+MDK-ARM/STM32_IAP_Demo/*.axf
+MDK-ARM/STM32_IAP_Demo/*.hex
+MDK-ARM/STM32_IAP_Demo/*.htm
+MDK-ARM/STM32_IAP_Demo/*.map
+MDK-ARM/STM32_IAP_Demo.uvguix.codesheep
+MDK-ARM/STM32_IAP_Demo.uvoptx
+MDK-ARM/STM32_IAP_Demo/*.*
+MDK-ARM/STM32_IAP_Demo.uvguix.codesheep

@@ -1,0 +1,16 @@
+{
+    "files.associations": {
+        "*.c": "c",
+        "*.md": "markdown",
+        "*.html": "html",
+        "stdint.h": "c",
+        "array": "c",
+        "string_view": "c",
+        "initializer_list": "c",
+        "utility": "c",
+        "deque": "c",
+        "queue": "c",
+        "string": "c",
+        "vector": "c"
+    }
+}
