@@ -125,7 +125,6 @@ int main(void)
 	uint32_t heartbeat_timer = 0;
 	while (1)
 	{
-		continue;
 		if (Tick_counter >= 5000)
 		{
 			heartbeat_timer++;
