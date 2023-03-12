@@ -28,6 +28,7 @@
 #include "bsp_esp8266.h"
 #include "onenet.h"
 #include "MqttKit.h"
+#include "board.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -58,7 +59,7 @@
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
-
+void jump_to_iap(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -73,6 +74,11 @@ void SystemClock_Config(void);
 int main(void)
 {
 	/* USER CODE BEGIN 1 */
+	/* 设置中断偏移
+	 * 偏移量为用户APP起始地址 0x080000000
+	 * 这里�?16KB
+	 **/
+	SCB->VTOR = FLASH_BASE | 0x4000;
 
 	/* USER CODE END 1 */
 
@@ -101,13 +107,13 @@ int main(void)
 
 	board_init();
 
-	while (!OneNET_DevLink()) // 接入OneNET
-	{
-		delay_ms(500);
-	}
+	//	while (!OneNET_DevLink()) // 接入OneNET
+	//	{
+	//		delay_ms(500);
+	//	}
 
-	OneNet_Init(DEVID,
-				APIKEY, AUTH_INFO, PROID, SERVER_IP, SERVER_PORT);
+	//	OneNet_Init(DEVID,
+	//				APIKEY, AUTH_INFO, PROID, SERVER_IP, SERVER_PORT);
 
 	// ESP8266_StaTcpClient_Unvarnish_ConfigTest();
 	/* USER CODE END 2 */
@@ -119,6 +125,7 @@ int main(void)
 	uint32_t heartbeat_timer = 0;
 	while (1)
 	{
+		continue;
 		if (Tick_counter >= 5000)
 		{
 			heartbeat_timer++;
@@ -127,8 +134,8 @@ int main(void)
 			// G_dht11.dataUpdate();
 			printf("temp:%.02f humi:%.02f\r\n", G_dht11.obj.temperature, G_dht11.obj.humidity);
 
-			// 数据发送到云端
-			printf("Send data to web server.\r\n");
+			// 数据发�?�到云端
+			printf("Publish:\t");
 			if (OneNET_SendData(buf))
 			{
 				printf("==========================\r\n"
@@ -137,7 +144,13 @@ int main(void)
 			}
 			else
 			{
-				printf("Publish is Finished.\r\n");
+
+				if (LED_toOFF == G_led_list.getMode(1))
+					G_led_list.setupMode(1, LED_toON);
+				else
+					G_led_list.setupMode(1, LED_toOFF);
+
+				printf("Success.\r\n");
 			}
 		}
 
@@ -148,7 +161,7 @@ int main(void)
 		}
 
 		if (heartbeat_timer >= 7 * 3600)
-		{ // 7h 重连�??�??
+		{ // 7h 重连
 			heartbeat_timer = 0;
 			OneNET_DevLink();
 		}
@@ -159,6 +172,7 @@ int main(void)
 		dataPtr = OneNET_GetIPD(0);
 		if (dataPtr)
 		{
+			// 命令接受�?�?(OTA预留)
 			OneNET_RevPro(dataPtr);
 		}
 	}
@@ -208,6 +222,29 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+void jump_to_iap(void)
+{
+
+	if (SysTick->CTRL & SysTick_CTRL_CLKSOURCE_Msk)
+	{ // 开启SysTick则关闭
+		HAL_DeInit();
+		SysTick->CTRL = 0;
+		SysTick->LOAD = 0;
+		SysTick->VAL = 0;
+	}
+
+	// 确定当前APP运行区域
+	uint32_t address = 0x08000000;
+
+	// 准备转跳
+	uint32_t jump_address = *(volatile uint32_t *)(address + 4);
+	void (*app_entry)(void) = (void (*)(void))jump_address;
+	__set_MSP(*(volatile uint32_t *)address);
+
+	// 转跳至APP
+	app_entry();
+}
 
 /* USER CODE END 4 */
 

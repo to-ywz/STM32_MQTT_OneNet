@@ -12,6 +12,9 @@
 
 #include "led.h"
 
+// 高电平为亮
+#define LED_HIGH_ON
+
 // 宏
 #define arrayof(x) (sizeof(x) / sizeof(x[0]))
 
@@ -51,9 +54,8 @@ static void setupLedMode(uint8_t id, led_status_t mode);
 static led_status_t getLedMode(uint8_t id);
 
 // 全局变量
-uint16_t Pin_List[LED_NUM] = {
-    89,
-};
+static uint16_t Pin_List[LED_NUM] = {
+    89, 90};
 LedListObject_t G_led_list;
 
 // 静态全局

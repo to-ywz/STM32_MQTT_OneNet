@@ -32,6 +32,7 @@ int get_pinnum(char *str)
     if (len != 3 && len != 4)
         return -1;
 
+    // 获取引脚编号
     port = (str[1] | 0x20) - 'a';
     pin = (str[2] | 0x20) - '0';
     if (len > 3)
